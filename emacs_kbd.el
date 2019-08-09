@@ -4,6 +4,8 @@
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 ;; (global-set-key (kbd "C-c C-k") 'compile)
+(global-set-key (kbd "C-<tab>") 'dabbrev-expand)
+(define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
 
 
 ;; === custom functions kbd ===
@@ -23,8 +25,8 @@
 (evil-leader/set-key "h" 'previous-buffer)
 (evil-leader/set-key "w" 'save-buffer)
 (evil-leader/set-key "bd" 'kill-buffer)
-(evil-leader/set-key "bl" 'list-buffers) ;; how to make it press enter at the end?
-(evil-leader/set-key "bo" 'switch-to-buffer)
+(evil-leader/set-key "bl" 'buffer-menu)
+;; (evil-leader/set-key "bo" 'switch-to-buffer) ;; not needed due to helm
 
 ;; Multiple cursors
 (evil-leader/set-key "me" 'mc/edit-lines)
@@ -41,6 +43,13 @@
 ;; Magit
 (evil-leader/set-key "gi" 'magit-init)
 (evil-leader/set-key "gs" 'magit-status)
+
+;; Helm
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-h o") 'helm-occur)
+(evil-leader/set-key "xf" 'helm-find-files)
+(evil-leader/set-key "xb" 'helm-buffers-list)
+(evil-leader/set-key "xp" 'helm-browse-project)
 
 
 (global-set-key (kbd "M-c") 'evil-normal-state)

@@ -73,7 +73,6 @@
 
 
 ;; load files
-;; (load (get-fullpath "emacs_abbr"))
 (load (get-fullpath "emacs_settings_ext_pkg"))
 (load (get-fullpath "emacs_funcs"))
 (load (get-fullpath "emacs_kbd"))

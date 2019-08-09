@@ -64,8 +64,9 @@
   (when (file-directory-p project)
     (add-to-list 'load-path project)))
 
-
-(setq column-number-mode t) ;; column numbers
+;; show line numbers
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
 
 ;; (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 ;; (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
