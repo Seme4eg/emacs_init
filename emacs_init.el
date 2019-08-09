@@ -20,13 +20,7 @@
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 
-
-(require 'evil)
-(evil-mode t)
-
-
 ;; Define default packages
-
 (defvar sads/packages '(auto-complete
 			htmlize
 			writegood-mode
@@ -34,6 +28,7 @@
 			yasnippet
 			evil-search-highlight-persist
 			solarized-theme
+			evil
 			evil-leader
 			projectile
 			helm
@@ -63,14 +58,7 @@
       (package-install pkg))))
 
 
-;; This makes sure that brace structures (), [], {}, etc. are closed
-(require 'autopair)
-
-(require 'auto-complete-config)
-(ac-config-default) ;; turn on autocomplete
-
 ;; =====================
-
 
 ;; load files
 (load (get-fullpath "emacs_settings_ext_pkg"))

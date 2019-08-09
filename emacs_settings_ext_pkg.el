@@ -1,3 +1,12 @@
+(require 'evil)
+(evil-mode t)
+
+;; This makes sure that brace structures (), [], {}, etc. are closed
+(require 'autopair)
+
+(require 'auto-complete-config)
+(ac-config-default) ;; turn on autocomplete
+
 ;; powerline enable
 (require 'powerline)
 (powerline-default-theme)

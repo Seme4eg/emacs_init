@@ -86,8 +86,8 @@
 ;; best not to include the ending “.el” or “.elc”
 (load "~/.emacs.d/lisp/color-theme-approximate") 
 
-(if window-system ;; solarized-light if in a graphical environment
-    (load-theme 'solarized-light t)
+(if window-system ;; solarized-dark if in a graphical environment
+    (load-theme 'solarized-dark t)
   (load-theme 'wombat t)) ;; wombat theme if in a terminal
 
 
