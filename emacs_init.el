@@ -27,7 +27,7 @@
 			multiple-cursors
 			yasnippet
 			evil-search-highlight-persist
-			solarized-theme
+			spacemacs-theme
 			evil
 			evil-leader
 			projectile

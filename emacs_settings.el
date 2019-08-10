@@ -4,6 +4,7 @@
 
 (setq user-full-name "sad")
 (setq user-mail-address "d3v1ant@mail.ru")
+(setenv "SSH_ASKPASS" "git-gui--askpass")
 
 
 ;; Environment
@@ -19,9 +20,9 @@
 
 ;; Turn off Scroll bar, Tool bar, Menu bar
 
-;; (scroll-bar-mode -1) -- throws and error on ubuntu emacs
 (tool-bar-mode -1)
 (menu-bar-mode -1)
+(toggle-scroll-bar -1)
 
 ;; Marking text
 (delete-selection-mode t)
@@ -83,11 +84,8 @@
 
 ;; ====================== Themes ======================
 
-;; best not to include the ending “.el” or “.elc”
-(load "~/.emacs.d/lisp/color-theme-approximate") 
-
-(if window-system ;; solarized-dark if in a graphical environment
-    (load-theme 'solarized-dark t)
+(if window-system ;; if in a graphical environment..
+    (load-theme 'spacemacs-dark)
   (load-theme 'wombat t)) ;; wombat theme if in a terminal
 
 
@@ -99,16 +97,13 @@
   (toggle-read-only))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
-;; Terminal Colors fix
-(color-theme-approximate-on)
-
 ;; Change cursor color depending on mode (only GUI emacs)
-(setq evil-emacs-state-cursor '("red" box))
-(setq evil-normal-state-cursor '("green" box))
+(setq evil-emacs-state-cursor '("cyan" box))
+(setq evil-normal-state-cursor '("cyan" box))
 (setq evil-visual-state-cursor '("orange" box))
-(setq evil-insert-state-cursor '("red" bar))
+(setq evil-insert-state-cursor '("green" bar))
 (setq evil-replace-state-cursor '("red" bar))
-(setq evil-operator-state-cursor '("red" hollow))
+(setq evil-operator-state-cursor '("cyan" hollow))
 
 (setq package-enable-at-startup nil)
 (custom-set-variables
