@@ -22,23 +22,24 @@
 
 ;; Define default packages
 (defvar sads/packages '(auto-complete
-			htmlize
-			writegood-mode
-			multiple-cursors
-			yasnippet
-			evil-search-highlight-persist
-			spacemacs-theme
 			evil
 			evil-leader
+			multiple-cursors
 			projectile
 			helm
-			autopair
+			spacemacs-theme
 			magit
+			org
+			powerline
+            
+			htmlize
+			writegood-mode
+			yasnippet
+			evil-search-highlight-persist
+			autopair
 			markdown-mode
 			f
-			org
 			smex
-			powerline
 			web-mode)
   "Default packages")
 
