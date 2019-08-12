@@ -6,6 +6,8 @@
 ;; (global-set-key (kbd "C-c C-k") 'compile)
 (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
 (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
+;; paste from clipboard by middle mouse button
+(global-set-key (kbd "<mouse-2>") 'clipboard-yank)
 
 
 ;; === custom functions kbd ===
@@ -50,6 +52,11 @@
 (evil-leader/set-key "xf" 'helm-find-files)
 (evil-leader/set-key "xb" 'helm-buffers-list)
 (evil-leader/set-key "xp" 'helm-browse-project)
+
+;; Projectile
+
+(evil-leader/set-key "pf" 'projectile-find-file)
+(evil-leader/set-key "ph" 'helm-projectile)
 
 
 (global-set-key (kbd "M-c") 'evil-normal-state)

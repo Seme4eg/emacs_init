@@ -26,12 +26,13 @@
 			evil-leader
 			multiple-cursors
 			projectile
+			helm-porjectile
 			helm
 			spacemacs-theme
 			magit
 			org
 			powerline
-            
+
 			htmlize
 			writegood-mode
 			yasnippet

@@ -4,6 +4,8 @@
 ;; This makes sure that brace structures (), [], {}, etc. are closed
 (require 'autopair)
 
+(projectile-mode +1)
+
 (require 'auto-complete-config)
 (ac-config-default) ;; turn on autocomplete
 
