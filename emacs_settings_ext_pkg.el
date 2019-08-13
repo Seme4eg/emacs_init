@@ -1,6 +1,8 @@
 (require 'evil)
 (evil-mode t)
 
+(require 'ido)
+
 ;; This makes sure that brace structures (), [], {}, etc. are closed
 (require 'autopair)
 
@@ -18,6 +20,8 @@
 
 (require 'auto-complete-config)
 (ac-config-default) ;; turn on autocomplete
+
+(setq dired-dwim-target t)
 
 
 ;; ====================== Evil ======================

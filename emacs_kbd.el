@@ -20,8 +20,6 @@
 
 ;; === Leader shortcuts ===
 
-(evil-leader/set-key "RET" 'evil-search-highlight-persist-remove-all)
-
 ;; buffers shortcuts
 (evil-leader/set-key "l" 'next-buffer)
 (evil-leader/set-key "h" 'previous-buffer)
@@ -29,6 +27,10 @@
 (evil-leader/set-key "bd" 'kill-buffer)
 (evil-leader/set-key "bl" 'buffer-menu)
 ;; (evil-leader/set-key "bo" 'switch-to-buffer) ;; not needed due to helm
+
+;; window configurations
+(evil-leader/set-key "cs" 'window-configuration-to-register)
+(evil-leader/set-key "cr" 'jump-to-register)
 
 ;; Multiple cursors
 (evil-leader/set-key "me" 'mc/edit-lines)

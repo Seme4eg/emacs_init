@@ -18,8 +18,13 @@
       initial-scratch-message nil
       initial-major-mode 'org-mode)
 
-;; Turn off Scroll bar, Tool bar, Menu bar
+;; stop prompt appearing each time when starting 'ansi-term'
+;; (defvar my-term-shell "/bin/bash")
+;;(defadvice ansi-term (before force-bash)
+;;  (interactive (list my-term-shell)))
+;;(ad-activate 'ansi-term)
 
+;; Turn off Scroll bar, Tool bar, Menu bar
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (if window-system ;; if in a graphical environment..
@@ -42,11 +47,10 @@
 ;; (setq tab-width 2
 ;;       indent-tabs-mode nil)
 
-;; Backup files
-;; (setq make-backup-files nil) -- disable backup files
+(setq make-backup-files nil) -- disable backup files
+;; (setq auto-save-default nil) ;; disable auto-save files
 
-;; Yes and No
-(defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No
 
 ;; Misc
 (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
@@ -89,6 +93,12 @@
     (load-theme 'spacemacs-dark)
   (load-theme 'wombat t)) ;; wombat theme if in a terminal
 
+;; when in GUI - highlight the line with the cursor
+;; didn't enable cuz of the comment line highlighting in emacs theme
+;; (when window-system (global-hl-line-mode t))
+
+;; after typing 'lambda' for example will turn into lambda
+(global-prettify-symbols-mode t)
 
 ;; Color Codes
 (require 'ansi-color)

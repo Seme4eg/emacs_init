@@ -2,8 +2,9 @@
 
 (require 'package)
 (package-initialize)
-
-(require 'ido)
+;; (setq package-enable-at-startup nil)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
 
 "Return the full path of *file-relative-path, relative to caller's file location."
 (defun get-fullpath (@file-relative-path)
@@ -13,12 +14,17 @@
 (load (get-fullpath "emacs_settings")) ;; emacs settings
 
 
-;; === load packages ===
+;; === Little preparation for **probably** using use-package ===
 
-(load "package")
-(package-initialize)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+;; function, that makes sure that the package is installed
+(unless (package-installed-p 'use-package) ;; if package is not installed..
+  (package-refresh-contents) ;; then call func which syncs our package manager with melpa
+  (package-install 'use-package))
+
+;; ==========
+
+
+;; === load packages ===
 
 ;; Define default packages
 (defvar sads/packages '(auto-complete
@@ -26,18 +32,17 @@
 			evil-leader
 			multiple-cursors
 			projectile
-			helm-porjectile
+			helm-projectile
 			helm
 			spacemacs-theme
 			magit
 			org
 			powerline
+			autopair
 
 			htmlize
 			writegood-mode
 			yasnippet
-			evil-search-highlight-persist
-			autopair
 			markdown-mode
 			f
 			smex
