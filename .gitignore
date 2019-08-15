@@ -1,4 +1,9 @@
-\#*\#
+# ignore backup & autosaved files
+
+\#*#
 *~
 .#*
+
+# ignore compiled .org files
+
 emacs_settings.el
