@@ -1,0 +1,122 @@
+* Syntax & references
+references:
+    - http://aaronbedra.com/emacs.d/
+    - http://bling.github.io/blog/2013/10/27/emacs-as-my-leader-vim-survival-guide/
+    - https://www.youtube.com/watch?v=a_y0Tf906Ec
+  #+BEGIN_SRC emacs-lisp
+    ;; (if window-system ...) ;; if in a graphical environment..
+  #+END_SRC
+* Environment
+   #+BEGIN_SRC emacs-lisp
+     ;; Splash Screen
+     (setq inhibit-splash-screen t
+	   initial-scratch-message nil
+	   initial-major-mode 'org-mode)
+
+     (setq x-select-enable-clipboard t)
+     (desktop-save-mode 1) ;; automatically save/restore sessions
+
+     (setq make-backup-files nil) ;; disable backup files
+     ;; (setq auto-save-default nil) ;; disable auto-save files
+
+     (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
+
+     ;; Misc
+     (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
+	     use-dialog-box nil ;; use the echo area instead of dialog boxes
+	     visible-bell t) ;; Use a visual indicator instead of making horrible noises
+
+     ;; Vendor directory (for manually installed packages)
+     (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
+     (add-to-list 'load-path sads/vendor-dir)
+
+     (dolist (project (directory-files sads/vendor-dir t "\\w+"))
+       (when (file-directory-p project)
+	 (add-to-list 'load-path project)))
+   #+END_SRC
+** Not used
+   #+BEGIN_SRC emacs-lisp
+     ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
+     ;; (setq exec-path (append exec-path '("/usr/local/bin")))
+     (require 'cl)
+
+     ;; Terminal setup (stop prompt appearing each time when starting 'ansi-term')
+     ;; (defvar my-term-shell "/bin/bash")
+     ;; (defadvice ansi-term (before force-bash)
+     ;;   (interactive (list my-term-shell)))
+     ;; (ad-activate 'ansi-term)
+
+   #+END_SRC
+
+* Appearance / Themes
+   #+BEGIN_SRC emacs-lisp
+     ;; theme
+     (if window-system (load-theme 'spacemacs-dark)
+	 (load-theme 'wombat t)) ;; wombat theme if in a terminal
+
+     ;; Change cursor color depending on mode (only GUI emacs)
+     (setq evil-emacs-state-cursor '("cyan" box))
+     (setq evil-normal-state-cursor '("cyan" box))
+     (setq evil-visual-state-cursor '("orange" box))
+     (setq evil-insert-state-cursor '("green" bar))
+     (setq evil-replace-state-cursor '("red" bar))
+     (setq evil-operator-state-cursor '("cyan" hollow))
+
+     ;; marking text
+     (delete-selection-mode t)
+     (transient-mark-mode t)
+
+     ;; font perks
+     (global-prettify-symbols-mode t) ;; type 'lambda' to understand
+
+     ;; Scroll-, tool-, menu bars*
+     (tool-bar-mode -1)
+     (menu-bar-mode -1)
+     (if window-system (toggle-scroll-bar -1))
+
+     ;; show line numbers
+     (when (version<= "26.0.50" emacs-version )
+       (global-display-line-numbers-mode))
+
+     ;; Display Settings
+     (setq-default indicate-empty-lines t)
+     (when (not indicate-empty-lines)
+       (toggle-indicate-empty-lines))
+
+     (setq-default show-trailing-whitespace t)
+
+     (show-paren-mode t) ;; highlight parentheses
+   #+END_SRC
+** Not used / known
+   #+BEGIN_SRC emacs-lisp
+     ;; Indentation
+     ;; (setq tab-width 2
+     ;;       indent-tabs-mode nil)
+
+     ;; when in GUI - highlight the line with the cursor
+     ;; didn't enable cuz of the comment line highlighting in emacs theme
+     ;; (when window-system (global-hl-line-mode t))
+
+     ;; highlight the line with the cursor
+     ;; (when window-system (global-hl-line-mode t))
+
+     ;; Color Codes
+     (require 'ansi-color)
+     (defun colorize-compilation-buffer ()
+       (toggle-read-only)
+       (ansi-color-apply-on-region (point-min) (point-max))
+       (toggle-read-only))
+     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+   #+END_SRC
+
+* Unknown purpose..
+  #+BEGIN_SRC emacs-lisp
+    ;; (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+    ;; (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+    ;; shell-script-mode
+    (add-to-list 'auto-mode-alist '("\\.zsh$" . shell-script-mode))
+
+    ;; conf-mode
+    (add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
+  #+END_SRC

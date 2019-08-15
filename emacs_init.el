@@ -1,8 +1,13 @@
 ;; ref: http://ergoemacs.org/emacs/organize_your_dot_emacs.html
 
+;; in some reason 3 lines below cannot be put in 'emacs_settings.org' file
+(setq user-full-name "sad")
+(setq user-mail-address "d3v1ant@mail.ru")
+(setenv "SSH_ASKPASS" "git-gui--askpass")
+
 (require 'package)
 (package-initialize)
-;; (setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 
@@ -11,8 +16,8 @@
   (concat (file-name-directory (or load-file-name buffer-file-name)) @file-relative-path)
 )
 
-(load (get-fullpath "emacs_settings")) ;; emacs settings
-
+;; compile emacs_settings.org in .el and include
+(org-babel-load-file (get-fullpath "emacs_settings.org"))
 
 ;; === Little preparation for **probably** using use-package ===
 
@@ -76,3 +81,17 @@
 ;; (load (get-fullpath "emacs_html"))
 (load (get-fullpath "emacs_misc")) ;; catch all, misc / tmp / worry-later
 
+
+(setq package-enable-at-startup nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages (quote (use-package helm evil-visual-mark-mode))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
