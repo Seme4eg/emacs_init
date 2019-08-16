@@ -17,6 +17,7 @@
 )
 
 ;; compile emacs_settings.org in .el and include
+;; after changing file below go to the end of this line and 'C-x C-e'
 (org-babel-load-file (get-fullpath "emacs_settings.org"))
 
 ;; === Little preparation for **probably** using use-package ===
@@ -43,7 +44,6 @@
 			magit
 			org
 			powerline
-			autopair
 
 			htmlize
 			writegood-mode
@@ -74,6 +74,7 @@
 
 ;; load files
 (load (get-fullpath "emacs_settings_ext_pkg"))
+(org-babel-load-file (get-fullpath "emacs_ext_pkg_set.org"))
 (load (get-fullpath "emacs_funcs"))
 (load (get-fullpath "emacs_kbd"))
 ;; (load (get-fullpath "emacs_kbd_mode_specific"))
@@ -82,7 +83,6 @@
 (load (get-fullpath "emacs_misc")) ;; catch all, misc / tmp / worry-later
 
 
-(setq package-enable-at-startup nil)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

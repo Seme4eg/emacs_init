@@ -21,12 +21,12 @@
 ;; === Leader shortcuts ===
 
 ;; buffers shortcuts
-(evil-leader/set-key "l" 'next-buffer)
-(evil-leader/set-key "h" 'previous-buffer)
 (evil-leader/set-key "w" 'save-buffer)
+(evil-leader/set-key "bn" 'next-buffer)
+(evil-leader/set-key "bp" 'previous-buffer)
 (evil-leader/set-key "bd" 'kill-buffer)
-(evil-leader/set-key "bl" 'buffer-menu)
-;; (evil-leader/set-key "bo" 'switch-to-buffer) ;; not needed due to helm
+(evil-leader/set-key "bm" 'buffer-menu)
+(evil-leader/set-key "bo" 'switch-to-buffer) ;; not needed if helm is enabled
 
 ;; window configurations
 (evil-leader/set-key "cs" 'window-configuration-to-register)
@@ -49,11 +49,12 @@
 (evil-leader/set-key "gs" 'magit-status)
 
 ;; Helm
-(global-set-key (kbd "M-x") 'helm-M-x)
+(evil-leader/set-key "x" 'helm-M-x)
+;; (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-h o") 'helm-occur)
-(evil-leader/set-key "xf" 'helm-find-files)
-(evil-leader/set-key "xb" 'helm-buffers-list)
-(evil-leader/set-key "xp" 'helm-browse-project)
+(evil-leader/set-key "hf" 'helm-find-files)
+(evil-leader/set-key "hb" 'helm-buffers-list)
+(evil-leader/set-key "hp" 'helm-browse-project)
 
 ;; Projectile
 
