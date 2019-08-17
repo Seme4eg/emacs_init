@@ -76,7 +76,7 @@
 (load (get-fullpath "emacs_settings_ext_pkg"))
 (org-babel-load-file (get-fullpath "emacs_ext_pkg_set.org"))
 (load (get-fullpath "emacs_funcs"))
-(load (get-fullpath "emacs_kbd"))
+(org-babel-load-file (get-fullpath "emacs_kbd.org"))
 ;; (load (get-fullpath "emacs_kbd_mode_specific"))
 ;; (load (get-fullpath "emacs_file_association"))
 ;; (load (get-fullpath "emacs_html"))
