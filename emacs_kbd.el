@@ -61,5 +61,8 @@
 (evil-leader/set-key "pf" 'projectile-find-file)
 (evil-leader/set-key "ph" 'helm-projectile)
 
+;; ORG
+(evil-leader/set-key "oc" 'org-capture)
+(evil-leader/set-key "oa" 'org-agenda)
 
 (global-set-key (kbd "M-c") 'evil-normal-state)

@@ -24,7 +24,7 @@
 
 ;; function, that makes sure that the package is installed
 (unless (package-installed-p 'use-package) ;; if package is not installed..
-  (package-refresh-contents) ;; then call func which syncs our package manager with melpa
+  (package-refresh-contents)
   (package-install 'use-package))
 
 ;; ==========
