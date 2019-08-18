@@ -16,16 +16,22 @@
   (concat (file-name-directory (or load-file-name buffer-file-name)) @file-relative-path)
 )
 
-;; compile emacs_settings.org in .el and include
 ;; after changing file below go to the end of this line and 'C-x C-e'
 (org-babel-load-file (get-fullpath "emacs_settings.org"))
 
-;; === Little preparation for **probably** using use-package ===
+
+;; use-package setup
+
+(eval-when-compile
+  (require 'use-package))
 
 ;; function, that makes sure that the package is installed
 (unless (package-installed-p 'use-package) ;; if package is not installed..
   (package-refresh-contents)
   (package-install 'use-package))
+
+(require 'use-package-ensure)
+(setq use-package-always-ensure t) ;; instead of putting ':ensure' everywhere
 
 ;; ==========
 
@@ -33,8 +39,7 @@
 ;; === load packages ===
 
 ;; Define default packages
-(defvar sads/packages '(auto-complete
-			evil
+(defvar sads/packages '(evil
 			evil-leader
 			multiple-cursors
 			projectile
@@ -45,6 +50,7 @@
 			org
 			powerline
 
+			auto-complete
 			htmlize
 			writegood-mode
 			yasnippet
@@ -80,7 +86,7 @@
 ;; (load (get-fullpath "emacs_kbd_mode_specific"))
 ;; (load (get-fullpath "emacs_file_association"))
 ;; (load (get-fullpath "emacs_html"))
-(load (get-fullpath "emacs_misc")) ;; catch all, misc / tmp / worry-later
+;; (load (get-fullpath "emacs_misc")) ;; catch all, misc / tmp / worry-later
 
 
 (custom-set-variables

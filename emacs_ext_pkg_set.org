@@ -1,8 +1,23 @@
-* Other package
+* Default packages
+#+BEGIN_SRC emacs-lisp
+  (setq dired-dwim-target t)
+#+END_SRC
+
+* Packages update
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-package-update
+    :config
+    (setq auto-package-update-delete-old-versions t)
+    (setq auto-package-update-hide-results t)
+    (auto-package-update-maybe))
+#+END_SRC
 * ORG
   *do that with 'use-package'
 ** main settings
 #+BEGIN_SRC emacs-lisp
+  (use-package org
+    :init
+    (
   ;; set maximum indentation for description lists
   (setq org-list-description-max-indent 5)
 
@@ -72,7 +87,25 @@
 
   (setq org-capture-templates
 	'(("t" "todo" entry (file+headline "~/Desktop/todo.org" "Tasks")
-	   "* TODO [#A] %?")))
+	   "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
+
+  ;; org-mode agenda options
+
+  (setq org-deadline-warning-days 7) ;; warn of any deadlines in next 7 days
+  (setq org-agenda-span (quote fortnight)) ;;show tasks scheduled in next fortnight
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+  ;;don't show tasks that are scheduled or have deadlines in the normal todo list
+  (setq org-agenda-todo-ignore-deadlines (quote all))
+  (setq org-agenda-todo-ignore-scheduled (quote all))
+
+  ;;sort tasks in order of when they are due and then by priority
+  (setq org-agenda-sorting-strategy
+    (quote
+     ((agenda deadline-up priority-down)
+      (todo priority-down category-keep)
+      (tags priority-down category-keep)
+      (search category-keep))))
 #+END_SRC
 * Evil
 ** evil itself
@@ -107,4 +140,10 @@
     :init
     (ido-vertical-mode 1))
   ;; (setq ido-vertical-define-keys 'C-n-and-C-p-only) ;; move between options
+#+END_SRC
+
+
+* Evil-mc (multiple cursors)
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package evil-mc
 #+END_SRC

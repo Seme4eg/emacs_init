@@ -6,8 +6,6 @@
 (require 'auto-complete-config)
 (ac-config-default)
 
-(setq dired-dwim-target t)
-
 ;; (helm-mode 1)
 
 
