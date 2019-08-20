@@ -1,0 +1,277 @@
+* Default packages
+#+BEGIN_SRC emacs-lisp
+  (setq dired-dwim-target t)
+#+END_SRC
+
+* Packages update
+*slows down the startup A LOT*
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package auto-package-update
+  ;;   :config
+  ;;   (setq auto-package-update-delete-old-versions t)
+  ;;   (setq auto-package-update-hide-results t)
+  ;;   (auto-package-update-maybe))
+#+END_SRC
+* ORG
+  *do that with 'use-package'
+** main settings
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+
+    :init
+    ;; kbd
+    (evil-leader/set-key "oc" 'org-capture)
+    (evil-leader/set-key "oa" 'org-agenda)
+    ;; enable flyspell-mode and writegood-mode
+    (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
+    (add-hook 'org-mode-hook (lambda () (writegood-mode)))
+    (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
+
+    :config
+    ;; set maximum indentation for description lists
+    (setq org-list-description-max-indent 5)
+    ;; prevent demoting heading also shifting text inside sections
+    (setq org-adapt-indentation nil)
+    ;; enable logging when tasks are complete
+    (setq org-log-done t
+	  org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
+	  org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+
+    ;; handling errors
+    :catch (lambda (keyword err)
+	     (message (error-message-string err))))
+
+  ;; there is also *org-agenda* and *org-habit* setup in this tut, but i skipped it for now
+#+END_SRC
+** visual settings
+#+BEGIN_SRC emacs-lisp
+  ;; bullets instead of asteric
+  (use-package org-bullets
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
+
+  (setq org-src-fontify-natively t) ;;syntax highlight code blocks
+#+END_SRC
+** org-babel
+#+BEGIN_SRC emacs-lisp
+  ;; (require 'ob) ;; don't know what for is this line
+
+  ;; embedd languages inside .org files with proper font-locking
+  ;; Allows to extract and execute code.
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)
+     (js . t)
+     (C . t)))
+
+  ;; (setq org-confirm-babel-evaluate nil)
+  ;;
+  ;; (add-hook 'org-babel-after-execute-hook (lambda ()
+  ;;                                           (condition-case nil
+  ;;                                               (org-display-inline-images)
+  ;;                                             (error nil)))
+  ;;           'append)
+
+#+END_SRC
+
+** agenda/todo setup
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-files (quote ("~/Desktop/todo.org"))) ;; dunno if it's gonna work
+
+  ;;set priority range from A to C with default A
+  (setq org-highest-priority ?A)
+  (setq org-lowest-priority ?C)
+  (setq org-default-priority ?A)
+
+  ;;set colours for priorities
+  (setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
+			     (?B . (:foreground "LightSteelBlue"))
+			     (?C . (:foreground "OliveDrab"))))
+
+  ;;open agenda in current window
+  (setq org-agenda-window-setup (quote current-window))
+
+  (setq org-capture-templates
+	'(("t" "todo" entry (file+headline "~/Desktop/todo.org" "Tasks")
+	   "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
+
+  ;; org-mode agenda options
+
+  (setq org-deadline-warning-days 7) ;; warn of any deadlines in next 7 days
+  (setq org-agenda-span (quote fortnight)) ;;show tasks scheduled in next fortnight
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+  ;;don't show tasks that are scheduled or have deadlines in the normal todo list
+  (setq org-agenda-todo-ignore-deadlines (quote all))
+  (setq org-agenda-todo-ignore-scheduled (quote all))
+
+  ;;sort tasks in order of when they are due and then by priority
+  (setq org-agenda-sorting-strategy
+    (quote
+     ((agenda deadline-up priority-down)
+      (todo priority-down category-keep)
+      (tags priority-down category-keep)
+      (search category-keep))))
+#+END_SRC
+
+* Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :init
+    (evil-leader/set-key "gi" 'magit-init)
+    (evil-leader/set-key "gs" 'magit-status))
+#+END_SRC
+* Evil
+** evil itself
+#+BEGIN_SRC emacs-lisp
+  (require 'evil)
+  (evil-mode t)
+
+  ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
+  (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
+    (evil-scroll-line-to-center (line-number-at-pos)))
+#+END_SRC
+** evil-leader
+#+BEGIN_SRC emacs-lisp
+  (setq evil-leader/in-all-states 1)
+  (global-evil-leader-mode)
+  (evil-leader/set-leader ",")
+#+END_SRC
+
+* IDO
+  is it possible to make ido search for regexp?
+** IDO enable
+#+BEGIN_SRC emacs-lisp
+  (setq ido-enable-flex-matching nil)
+  (setq ido-create-new-buffer 'always)
+  (setq ido-everywhere t)
+  (ido-mode 1)
+#+END_SRC
+** IDO-vertical
+#+BEGIN_SRC emacs-lisp
+  (use-package ido-vertical-mode
+    :init
+    (ido-vertical-mode 1))
+    (setq ido-vertical-define-keys 'C-n-and-C-p-only) ;; move between options
+#+END_SRC
+** Smex
+*Package to get completion in ~M-x~ menu (and most used commands will be at top)*
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+    :init (smex-initialize)
+    :bind
+    ("M-x" . smex))
+#+END_SRC
+
+* Evil-mc (multiple cursors)
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package evil-mc
+#+END_SRC
+
+
+
+* User functions
+** Config edit/reload
+#+BEGIN_SRC emacs-lisp
+  ;; config edit/reload
+  (defun config-visit()
+    (interactive)
+    (find-file "~/git/emacs_init/emacs_init.el"))
+  (global-set-key (kbd "C-c e") 'config-visit)
+#+END_SRC
+** Identation & buffer cleanups
+#+BEGIN_SRC emacs-lisp
+  ;; This re-indents, untabifies, and cleans up whitespace
+  (defun untabify-buffer ()
+    (interactive)
+    (untabify (point-min) (point-max)))
+
+  (defun indent-buffer ()
+    (interactive)
+    (indent-region (point-min) (point-max)))
+
+  "Perform a bunch of operations on the whitespace content of a buffer."
+  (defun cleanup-buffer ()
+    (interactive)
+    (indent-buffer)
+    (untabify-buffer)
+    (delete-trailing-whitespace))
+
+  "Remove tmux artifacts from region."
+  (defun cleanup-region (beg end)
+    (interactive "r")
+    (dolist (re '("\\\\│\·*\n" "\W*│\·*"))
+      (replace-regexp re "" nil beg end)))
+#+END_SRC
+
+
+
+* Keybindings
+** Environment
+#+BEGIN_SRC emacs-lisp
+  ;; (global-set-key (kbd "RET") 'newline-and-indent)
+  (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
+  ;; (global-set-key (kbd "M-/") 'hippie-expand) ;; there is 'C-n' - dynamic expand
+  ;; (global-set-key (kbd "C-c C-k") 'compile)
+  (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
+  (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
+  ;; paste from clipboard by middle mouse button
+  (global-set-key (kbd "<mouse-2>") 'clipboard-yank)
+
+  (global-set-key (kbd "M-c") 'evil-normal-state)
+#+END_SRC
+
+** Navigation
+*** Buffers
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key "w" 'save-buffer)
+  (evil-leader/set-key "bd" 'kill-buffer)
+  (evil-leader/set-key "bm" 'buffer-menu)
+  (evil-leader/set-key "bo" 'switch-to-buffer) ;; not needed if helm is enabled
+#+END_SRC
+
+*** Window configurations
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key "cs" 'window-configuration-to-register)
+  (evil-leader/set-key "cr" 'jump-to-register)
+#+END_SRC
+
+** Packages
+*** Multiple cursors
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key "me" 'mc/edit-lines)
+  (evil-leader/set-key "mn" 'mc/mark-next-like-this-word)
+  (evil-leader/set-key "mp" 'mc/mark-previous-like-this-word)
+  (evil-leader/set-key "ma" 'mc/mark-all-like-this)
+  (evil-leader/set-key "mf" 'mc/unmark-next-like-this)
+  (evil-leader/set-key "mb" 'mc/unmark-previous-like-this)
+  (evil-leader/set-key "md" 'mc/skip-to-next-like-this)
+  (evil-leader/set-key "mu" 'mc/skip-to-previous-like-this)
+  (evil-leader/set-key "mt" 'mc/mark-sgml-tag-pair)
+  (evil-leader/set-key "ms" 'mc/sort-regions)
+#+END_SRC
+*** Helm
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key "x" 'helm-M-x)
+  ;; (global-set-key (kbd "M-x") 'helm-M-x)
+  (global-set-key (kbd "C-h o") 'helm-occur)
+  (evil-leader/set-key "hf" 'helm-find-files)
+  (evil-leader/set-key "hb" 'helm-buffers-list)
+  (evil-leader/set-key "hp" 'helm-browse-project)
+#+END_SRC
+*** Projectile
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key "pf" 'projectile-find-file)
+  (evil-leader/set-key "ph" 'helm-projectile)
+#+END_SRC
+*** ORG
+#+BEGIN_SRC emacs-lisp
+  (evil-leader/set-key "oc" 'org-capture)
+  (evil-leader/set-key "oa" 'org-agenda)
+#+END_SRC
+** User functions
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x M-t") 'cleanup-region)
+  (evil-leader/set-key "bp" 'mode-line-other-buffer)
+  ;; (global-set-key (kbd "C-c n") 'cleanup-buffer)
+#+END_SRC

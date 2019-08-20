@@ -43,26 +43,23 @@
 			evil-leader
 			multiple-cursors
 			projectile
-			helm-projectile
-			helm
 			spacemacs-theme
 			magit
-			org
 			powerline
 
 			auto-complete
-			htmlize
-			writegood-mode
 			yasnippet
 			markdown-mode
 			f
-			smex
 			web-mode)
   "Default packages")
 
+;; helm-projectile
+;; helm
+;; htmlize
+;; writegood-mode
 
 ;; Install default packages
-
 (defun sads/packages-installed-p ()
   (loop for pkg in sads/packages
         when (not (package-installed-p pkg)) do (return nil)
@@ -75,29 +72,11 @@
     (when (not (package-installed-p pkg))
       (package-install pkg))))
 
-
-;; =====================
-
 ;; load files
+(org-babel-load-file (get-fullpath "config.org"))
 (load (get-fullpath "emacs_settings_ext_pkg"))
-(org-babel-load-file (get-fullpath "emacs_ext_pkg_set.org"))
-(load (get-fullpath "emacs_funcs"))
-(org-babel-load-file (get-fullpath "emacs_kbd.org"))
-;; (load (get-fullpath "emacs_kbd_mode_specific"))
-;; (load (get-fullpath "emacs_file_association"))
-;; (load (get-fullpath "emacs_html"))
-;; (load (get-fullpath "emacs_misc")) ;; catch all, misc / tmp / worry-later
-
 
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (use-package helm evil-visual-mark-mode))))
+ )
 (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  )

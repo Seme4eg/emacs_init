@@ -7,5 +7,4 @@
 # ignore compiled .org files
 
 emacs_settings.el
-emacs_ext_pkg_set.el
-emacs_kbd.el
+config.el

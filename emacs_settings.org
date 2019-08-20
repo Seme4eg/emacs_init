@@ -34,6 +34,12 @@ references:
        (when (file-directory-p project)
 	 (add-to-list 'load-path project)))
    #+END_SRC
+
+** Navigation
+ido + smex | helm | swiper -- 3 different ways
+#+BEGIN_SRC emacs-lisp
+  (setq ibuffer-expert t)
+#+END_SRC
 ** Not used
    #+BEGIN_SRC emacs-lisp
      ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
