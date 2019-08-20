@@ -2,14 +2,10 @@
 #+BEGIN_SRC emacs-lisp
   ;; (global-set-key (kbd "RET") 'newline-and-indent)
   (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
-  ;; (global-set-key (kbd "M-/") 'hippie-expand) ;; there is 'C-n' - dynamic expand
-  ;; (global-set-key (kbd "C-c C-k") 'compile)
   (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
   (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
   ;; paste from clipboard by middle mouse button
   (global-set-key (kbd "<mouse-2>") 'clipboard-yank)
-
-  (global-set-key (kbd "M-c") 'evil-normal-state)
 #+END_SRC
 
 ** Navigation
@@ -19,7 +15,7 @@
   (evil-leader/set-key "bd" 'kill-buffer)
   (evil-leader/set-key "bm" 'ibuffer)
   (evil-leader/set-key "bo" 'switch-to-buffer)
-  (evil-leader/set-key "bp" 'mode-line-other-buffer)
+  (global-set-key (kbd "C-c p") 'mode-line-other-buffer)
 #+END_SRC
 
 *** Window configurations
@@ -29,6 +25,77 @@
 #+END_SRC
 
 
+* Appearance
+** Packages
+*** Spacemacs-theme
+#+BEGIN_SRC emacs-lisp
+  (use-package spacemacs-common
+      :ensure spacemacs-theme
+      :config (load-theme 'spacemacs-dark t))
+#+END_SRC
+
+*** Rainbow
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :defer t
+    :init (rainbow-mode 1))
+#+END_SRC
+** Other visual settings
+#+BEGIN_SRC emacs-lisp
+  ;; Change cursor color depending on mode (only GUI emacs)
+  (setq evil-emacs-state-cursor '("cyan" box))
+  (setq evil-normal-state-cursor '("cyan" box))
+  (setq evil-visual-state-cursor '("orange" box))
+  (setq evil-insert-state-cursor '("green" bar))
+  (setq evil-replace-state-cursor '("red" bar))
+  (setq evil-operator-state-cursor '("cyan" hollow))
+
+  ;; marking text
+  (delete-selection-mode t)
+  (transient-mark-mode t)
+
+  ;; font perks
+  (global-prettify-symbols-mode t) ;; type 'lambda' to understand
+
+  ;; Scroll-, tool-, menu bars*
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (if window-system (toggle-scroll-bar -1))
+
+  ;; show line numbers
+  (when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
+
+  ;; Display Settings
+  (setq-default indicate-empty-lines t)
+  (when (not indicate-empty-lines)
+  (toggle-indicate-empty-lines))
+
+  (setq-default show-trailing-whitespace t)
+
+  (show-paren-mode t) ;; highlight parentheses
+#+END_SRC
+** Not used / known
+   #+BEGIN_SRC emacs-lisp
+     ;; Indentation
+     ;; (setq tab-width 2
+     ;;       indent-tabs-mode nil)
+
+     ;; when in GUI - highlight the line with the cursor
+     ;; didn't enable cuz of the comment line highlighting in emacs theme
+     ;; (when window-system (global-hl-line-mode t))
+
+     ;; highlight the line with the cursor
+     ;; (when window-system (global-hl-line-mode t))
+
+     ;; Color Codes
+     (require 'ansi-color)
+     (defun colorize-compilation-buffer ()
+       (toggle-read-only)
+       (ansi-color-apply-on-region (point-min) (point-max))
+       (toggle-read-only))
+     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+   #+END_SRC
 
 
 * Default packages
@@ -161,18 +228,21 @@
 * Evil
 ** evil itself
 #+BEGIN_SRC emacs-lisp
-  (require 'evil)
-  (evil-mode t)
-
-  ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
-  (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
-    (evil-scroll-line-to-center (line-number-at-pos)))
+  (use-package evil
+    :init (evil-mode t)
+    :bind ("M-c" . evil-normal-state)
+    :config
+    ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
+    (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
+      (evil-scroll-line-to-center (line-number-at-pos))))
 #+END_SRC
 ** evil-leader
 #+BEGIN_SRC emacs-lisp
-  (setq evil-leader/in-all-states 1)
-  (global-evil-leader-mode)
-  (evil-leader/set-leader ",")
+  (use-package evil-leader
+    :init
+    (setq evil-leader/in-all-states 1)
+    (global-evil-leader-mode)
+    (evil-leader/set-leader ","))
 #+END_SRC
 
 * IDO
