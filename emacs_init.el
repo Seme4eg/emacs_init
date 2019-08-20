@@ -14,8 +14,6 @@
   (concat (file-name-directory (or load-file-name buffer-file-name)) @file-relative-path)
 )
 
-(org-babel-load-file (get-fullpath "emacs_settings.org"))
-
 ;; use-package setup
 (eval-when-compile
   (require 'use-package))
