@@ -1,22 +1,8 @@
-(projectile-mode +1)
-
 (require 'powerline)
 (powerline-default-theme)
 
 (require 'auto-complete-config)
 (ac-config-default)
-
-;; (helm-mode 1)
-
-
-;; ====================== Smex ======================
-
-;; smex is a necessity. It provides history and searching on top of M-x
-(setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-
 
 
 ;; ============ flyspell (spell checker) ============

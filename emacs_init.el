@@ -41,10 +41,7 @@
 ;; Define default packages
 (defvar sads/packages '(evil
 			evil-leader
-			multiple-cursors
-			projectile
 			spacemacs-theme
-			magit
 			powerline
 
 			auto-complete
@@ -54,8 +51,7 @@
 			web-mode)
   "Default packages")
 
-;; helm-projectile
-;; helm
+;; multiple-cursors
 ;; htmlize
 ;; writegood-mode
 
