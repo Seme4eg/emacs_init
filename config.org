@@ -332,20 +332,22 @@ ido + smex | helm | swiper -- 3 different ways
   ;; (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
 #+END_SRC
 
-* Evil-mc (multiple cursors)
+* Evil-mc (multiple cursors) | [[https://github.com/gabesoft/evil-mc][github]]
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package evil-mc
+  (use-package evil-mc
+    :init
+    (global-evil-mc-mode 1)
+    (evil-define-key 'visual evil-mc-key-map
+      "A" #'evil-mc-make-cursor-in-visual-selection-end
+      "I" #'evil-mc-make-cursor-in-visual-selection-beg))
 
-  (evil-leader/set-key "me" 'mc/edit-lines)
-  (evil-leader/set-key "mn" 'mc/mark-next-like-this-word)
-  (evil-leader/set-key "mp" 'mc/mark-previous-like-this-word)
-  (evil-leader/set-key "ma" 'mc/mark-all-like-this)
-  (evil-leader/set-key "mf" 'mc/unmark-next-like-this)
-  (evil-leader/set-key "mb" 'mc/unmark-previous-like-this)
-  (evil-leader/set-key "md" 'mc/skip-to-next-like-this)
-  (evil-leader/set-key "mu" 'mc/skip-to-previous-like-this)
-  (evil-leader/set-key "mt" 'mc/mark-sgml-tag-pair)
-  (evil-leader/set-key "ms" 'mc/sort-regions)
+  (evil-leader/set-key "ma" 'evil-mc-make-all-cursors)
+  (evil-leader/set-key "mu" 'evil-mc-undo-all-cursors)
+  (evil-leader/set-key "mn" 'evil-mc-make-and-goto-next-match)
+  (evil-leader/set-key "mp" 'evil-mc-make-and-goto-prev-match)
+  (evil-leader/set-key "mf" 'evil-mc-skip-and-goto-next-match)
+  (evil-leader/set-key "mb" 'evil-mc-skip-and-goto-prev-match)
+  (evil-leader/set-key "mz" 'evil-mc-undo-last-added-cursor)
 #+END_SRC
 
 * Projectile
@@ -356,6 +358,21 @@ ido + smex | helm | swiper -- 3 different ways
     (evil-leader/set-key "pf" 'projectile-find-file))
 #+END_SRC
 
+
+* Markdown-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :mode (("README\\.md\\'" . gfm-mode)
+	   ("\\.md\\'" . markdown-mode)
+	   ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+* Powerline
+#+BEGIN_SRC emacs-lisp
+  (use-package powerline
+    :init (powerline-default-theme))
+#+END_SRC
 
 
 * User functions

@@ -26,11 +26,8 @@
 (require 'use-package-ensure)
 (setq use-package-always-ensure t) ;; instead of putting ':ensure' everywhere
 
-;; powerline
-
 ;; auto-complete
 ;; yasnippet
-;; markdown-mode
 ;; f
 ;; web-mode
 
