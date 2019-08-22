@@ -36,7 +36,6 @@
 
 ;; load files
 (org-babel-load-file (get-fullpath "config.org"))
-(load (get-fullpath "emacs_settings_ext_pkg"))
 
 (custom-set-variables)
 (custom-set-faces)
