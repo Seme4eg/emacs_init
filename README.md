@@ -10,4 +10,6 @@
 ## Syntax
 ```emacs-lisp
 ;; (if window-system ...) ;; if in a graphical environment..
+
+:bind ("s-t" . sudo-edit) ;; "s" stands for 'super'
 ```

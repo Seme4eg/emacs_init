@@ -8,6 +8,7 @@
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
+(package-refresh-contents)
 
 "Return the full path of *file-relative-path, relative to caller's file location."
 (defun get-fullpath (@file-relative-path)
@@ -26,7 +27,6 @@
 (require 'use-package-ensure)
 (setq use-package-always-ensure t) ;; instead of putting ':ensure' everywhere
 
-;; auto-complete
 ;; yasnippet
 ;; f
 ;; web-mode
