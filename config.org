@@ -1,40 +1,55 @@
 * Environment
 ** Major settings
 #+BEGIN_SRC emacs-lisp
-    ;; Splash Screen
-    (setq inhibit-splash-screen t
-	initial-scratch-message nil
-	initial-major-mode 'org-mode)
+  (require 'cl-lib) ;; new library for common-lib compatability
 
-    (setq x-select-enable-clipboard t)
-    (desktop-save-mode 1) ;; automatically save/restore sessions
+  ;; Splash Screen
+  (setq inhibit-splash-screen t
+      initial-scratch-message nil
+      initial-major-mode 'org-mode)
 
-    (setq make-backup-files nil) ;; disable backup files
-    ;; (setq auto-save-default nil) ;; disable auto-save files
+  (setq fill-column 80)
 
-    (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
+  (setq x-select-enable-clipboard t)
+  (desktop-save-mode 1) ;; automatically save/restore sessions
 
-    ;; Misc
-    (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
-	    use-dialog-box nil ;; use the echo area instead of dialog boxes
-	    visible-bell t) ;; Use a visual indicator instead of making horrible noises
+  (setq make-backup-files nil) ;; disable backup files
+  (setq auto-save-default nil) ;; disable auto-save files
 
-    ;; Vendor directory (for manually installed packages)
-    (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
-    (add-to-list 'load-path sads/vendor-dir)
+  (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
 
-    (dolist (project (directory-files sads/vendor-dir t "\\w+"))
-    (when (file-directory-p project)
-	(add-to-list 'load-path project)))
+  ;; Misc
+  (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
+          use-dialog-box nil ;; use the echo area instead of dialog boxes
+          visible-bell t) ;; Use a visual indicator instead of making horrible noises
+
+  ;; Vendor directory (for manually installed packages)
+  (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
+  (add-to-list 'load-path sads/vendor-dir)
+
+  (dolist (project (directory-files sads/vendor-dir t "\\w+"))
+  (when (file-directory-p project)
+      (add-to-list 'load-path project)))
+
+  (add-hook 'markdown-mode-hook 'auto-fill-mode)
 #+END_SRC
 ** Modes
 #+BEGIN_SRC emacs-lisp
-  (global-subword-mode 1) ;; to be able to move in came;; make electric-pair-mode work on more brackets
+  ;; marking text
+  (delete-selection-mode t)
+  (transient-mark-mode t)
 
-  (setq electric-pair-pairs
-	'(
-	  (?\' . ?\')))
-  (electric-pair-mode 1) ;; insert pair of () "" [] {} ''
+  (global-prettify-symbols-mode t) ;; type 'lambda' to understand
+
+  ;; to be able to move in camelCase
+  (global-subword-mode 1)
+
+  ;; make electric-pair-mode work on more brackets
+  ;; disabled function below cuz it inserts '' even in "don't'" words..
+  ;; (setq electric-pair-pairs
+  ;;       '(
+  ;; 	(?\' . ?\')))
+  (electric-pair-mode 1) ;; insert pair of () "" [] {}
 
   (global-auto-revert-mode nil)
   (flyspell-mode nil)
@@ -74,14 +89,12 @@ ido + smex | helm | swiper -- 3 different ways
    #+BEGIN_SRC emacs-lisp
      ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
      ;; (setq exec-path (append exec-path '("/usr/local/bin")))
-     (require 'cl)
 
      ;; Terminal setup (stop prompt appearing each time when starting 'ansi-term')
      ;; (defvar my-term-shell "/bin/bash")
      ;; (defadvice ansi-term (before force-bash)
      ;;   (interactive (list my-term-shell)))
      ;; (ad-activate 'ansi-term)
-
 
      ;; (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
      ;; (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
@@ -123,12 +136,9 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
   (setq evil-replace-state-cursor '("red" bar))
   (setq evil-operator-state-cursor '("cyan" hollow))
 
-  ;; marking text
-  (delete-selection-mode t)
-  (transient-mark-mode t)
-
-  ;; font perks
-  (global-prettify-symbols-mode t) ;; type 'lambda' to understand
+  ;; Indentation
+  (setq tab-width 2
+        indent-tabs-mode nil)
 
   ;; Scroll-, tool-, menu bars*
   (tool-bar-mode -1)
@@ -150,10 +160,6 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
 #+END_SRC
 ** Not used / known
    #+BEGIN_SRC emacs-lisp
-     ;; Indentation
-     ;; (setq tab-width 2
-     ;;       indent-tabs-mode nil)
-
      ;; when in GUI - highlight the line with the cursor
      ;; didn't enable cuz of the comment line highlighting in emacs theme
      ;; (when window-system (global-hl-line-mode t))
@@ -198,8 +204,10 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
     ;; (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
     (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
 
+    :hook ((org-mode-hook . org-indent-mode)
+           (org-mode-hook . auto-fill-mode))
+
     :config
-    ;; set maximum indentation for description lists
     (setq org-list-description-max-indent 5)
     ;; prevent demoting heading also shifting text inside sections
     (setq org-adapt-indentation nil)
@@ -207,12 +215,12 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
     (setq org-src-window-setup 'current-window)
     ;; enable logging when tasks are complete
     (setq org-log-done t
-	  org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
-	  org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+          org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
+          org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
 
     ;; handling errors
     :catch (lambda (keyword err)
-	     (message (error-message-string err))))
+             (message (error-message-string err))))
 
   ;; there is also *org-agenda* and *org-habit* setup in this tut, but i skipped it for now
 #+END_SRC
@@ -479,6 +487,23 @@ hide some major modes in spaceline
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
     :bind ("C-s" . swiper))
+#+END_SRC
+* Yasnippet
+~yas-describe-tables~ - run this to see all snippets
+all snippets are in =~/emacs.d/elpa/yasnippet-snippets-___.518/snippets/{modes}
+for performance reasons add yas-modes to different hooks
+for example to add hook 'lua-mode-hook' create dir. in '~/emacs.d/snippets/lua-mode/'
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :config
+    (use-package yasnippet-snippets)
+    (yas-reload-all)) ;; ur custom snippets won't work untill u run this
+#+END_SRC
+* Avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :config
+    (evil-leader/set-key "SPC" 'avy-goto-char))
 #+END_SRC
 * Sudo-edit
 #+BEGIN_SRC emacs-lisp

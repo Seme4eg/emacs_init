@@ -21,3 +21,5 @@ So when we enter any buffer for programming hook below is called
 ``` emacs-lisp
 :init (add-hook 'prog-mode-hook 'rainbow-mode))
 ```
+
+> also check [use-package hooks](https://github.com/jwiegley/use-package#hooks)
