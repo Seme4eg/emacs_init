@@ -13,3 +13,11 @@
 
 :bind ("s-t" . sudo-edit) ;; "s" stands for 'super'
 ```
+
+### Hooks
+Whenever we enter a buffer that is for programming `prog-mode-hook` is called
+and when it is called run `rainbow-mode`
+So when we enter any buffer for programming hook below is called
+``` emacs-lisp
+:init (add-hook 'prog-mode-hook 'rainbow-mode))
+```

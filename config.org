@@ -104,14 +104,14 @@ ido + smex | helm | swiper -- 3 different ways
 #+END_SRC
 
 *** Rainbow
+couldn't use just ~:hook prog-mode)~ cuz it transforms into
+~:hook (prog-mode . rainbow-delimiters)~ and doesn't add ~-mode~
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-mode
-    :defer t
-    :init (rainbow-mode 1))
+    :hook prog-mode)
 
   (use-package rainbow-delimiters
-    :init
-    (rainbow-delimiters-mode 1))
+    :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 ** Other visual settings
 #+BEGIN_SRC emacs-lisp
@@ -195,9 +195,7 @@ ido + smex | helm | swiper -- 3 different ways
     ;; kbd
     (evil-leader/set-key "oc" 'org-capture)
     (evil-leader/set-key "oa" 'org-agenda)
-    ;; enable flyspell-mode and writegood-mode
     ;; (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
-    (add-hook 'org-mode-hook (lambda () (writegood-mode)))
     (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
 
     :config
@@ -393,17 +391,16 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
 	   ("\\.md\\'" . markdown-mode)
 	   ("\\.markdown\\'" . markdown-mode))
     :init
-    ;; generate HTML previews from within the mode
-    (setq markdown-command "pandoc --smart -f markdown -t html")
     ;; use a custom css file to make it a little prettier
-    (setq markdown-css-paths `(,(expand-file-name "markdown.css" sads/vendor-dir)))
-    (setq markdown-command "multimarkdown"))
+    (setq markdown-css-paths `(expand-file-name "markdown.css" sads/vendor-dir))
+    ;; generate HTML previews from within the mode
+    ;; (setq markdown-command "pandoc --smart -f markdown -t html"))
+    (setq markdown-command "markdown"))
 
   ;; prev. settings
   ;; (add-hook 'markdown-mode-hook
   ;; 	  (lambda ()
   ;; 	    (visual-line-mode t)
-  ;; 	    (writegood-mode t)
   ;; 	    (flyspell-mode t)))
 #+END_SRC
 * Spaceline / Powerline
@@ -477,6 +474,11 @@ hide some major modes in spaceline
 #+BEGIN_SRC emacs-lisp
   (use-package popup-kill-ring
     :bind ("M-y" . popup-kill-ring))
+#+END_SRC
+* Swiper
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper
+    :bind ("C-s" . swiper))
 #+END_SRC
 * Sudo-edit
 #+BEGIN_SRC emacs-lisp
