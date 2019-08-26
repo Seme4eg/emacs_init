@@ -1,3 +1,23 @@
+* Evil
+** evil itself
+#+BEGIN_SRC emacs-lisp
+  (use-package evil
+    :init (evil-mode t)
+    :bind ("M-c" . evil-normal-state)
+    :config
+    ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
+    (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
+      (evil-scroll-line-to-center (line-number-at-pos))))
+#+END_SRC
+** evil-leader
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-leader
+    :init
+    (setq evil-leader/in-all-states 1)
+    (global-evil-leader-mode)
+    (evil-leader/set-leader ","))
+#+END_SRC
+
 * Environment
 ** Major settings
 #+BEGIN_SRC emacs-lisp
@@ -312,26 +332,6 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (evil-leader/set-key "gi" 'magit-init)
     (evil-leader/set-key "gs" 'magit-status))
 #+END_SRC
-* Evil
-** evil itself
-#+BEGIN_SRC emacs-lisp
-  (use-package evil
-    :init (evil-mode t)
-    :bind ("M-c" . evil-normal-state)
-    :config
-    ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
-    (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
-      (evil-scroll-line-to-center (line-number-at-pos))))
-#+END_SRC
-** evil-leader
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-leader
-    :init
-    (setq evil-leader/in-all-states 1)
-    (global-evil-leader-mode)
-    (evil-leader/set-leader ","))
-#+END_SRC
-
 * IDO
   is it possible to make ido search for regexp?
 ** IDO enable
