@@ -553,15 +553,47 @@ for example to add hook 'lua-mode-hook' create dir. in '~/emacs.d/snippets/lua-m
 
 * Web-mode (haven't set up yet)
 #+BEGIN_SRC emacs-lisp
-  ;; (setq web-mode-style-padding 2)
-  ;; (setq web-mode-script-padding 2)
-  ;; (setq web-mode-markup-indent-offset 2)
-  ;; (setq web-mode-css-indent-offset 2)
-  ;; (setq web-mode-code-indent-offset 2)
-  ;;
-  ;; (add-to-list 'auto-mode-alist '("\\.hbs$" . web-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.erb$" . web-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
+  (use-package web-mode
+    :init
+    (add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
+    (setq web-mode-style-padding 2)
+    (setq web-mode-script-padding 2)
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2)
+    (setq web-mode-attr-indent-offset 2)
+    (setq web-mode-indent-style 2)
+    (setq web-mode-sql-indent-offset 2))
+    ;; can be used to set blocks background and default foreground (see web-mode-block-face)
+    (setq web-mode-enable-block-face t)
+    ;; set up per-language ac-sources
+    (setq web-mode-ac-sources-alist
+	  '(("css" . (ac-source-css-property))
+	    ("html" . (ac-source-words-in-buffer ac-source-abbrev))
+	    ("php" . (ac-source-php-extras ac-source-yasnippet ac-source-gtags ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))))
+
+    :config
+    (add-hook 'web-mode-hook
+	      (lambda ()
+		(setq web-mode-style-padding 2)
+		(yas-minor-mode t)
+		(emmet-mode)
+		;; (flycheck-add-mode 'html-tidy 'web-mode)
+		(flycheck-add-mode 'web-mode)
+		(flycheck-mode)))
+
+    (add-hook 'web-mode-before-auto-complete-hooks
+	      '(lambda ()
+		 (let ((web-mode-cur-language (web-mode-language-at-pos)))
+		   (if (string= web-mode-cur-language "php")
+		       (yas-activate-extra-mode 'php-mode)
+		     (yas-deactivate-extra-mode 'php-mode))
+		   (if (string= web-mode-cur-language "css")
+		       (setq emmet-use-css-transform t)
+		     (setq emmet-use-css-transform nil)))))
+    )
+
+  ;; INSTALL flycheck, emmet and html-tidy asap
 #+END_SRC
 
 
