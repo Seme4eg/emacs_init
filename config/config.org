@@ -633,13 +633,13 @@ for example to add hook 'lua-mode-hook' create dir. in '~/emacs.d/snippets/lua-m
   ;; edit
   (defun config-visit()
     (interactive)
-    (find-file "~/git/emacs_init/config.org"))
+    (find-file "~/.emacs.d/config/config.org"))
   (global-set-key (kbd "C-c e") 'config-visit)
 
   ;; reload
   (defun config-reload()
     (interactive)
-    (org-babel-load-file (get-fullpath "config.org")))
+    (org-babel-load-file (get-fullpath "~/.emacs.d/config/config.org")))
   (global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
 ** Identation & buffer cleanups

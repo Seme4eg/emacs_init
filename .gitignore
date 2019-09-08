@@ -4,7 +4,12 @@
 *~
 .#*
 
-# ignore compiled .org files
+# ignore everything in .emacs.d dir
+/*
 
-emacs_settings.el
-config.el
+# exept
+!init.el
+!config/
+
+# ignore compiled .org files
+config/*.el
