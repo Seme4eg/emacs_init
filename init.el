@@ -29,8 +29,6 @@
 (org-babel-load-file (get-fullpath "config/config.org"))
 ;; (load (get-gullpath "modes.el"))
 ;; (load "~/.emacs.d/modes.el")
-;; (load "~/git/emacs_init/emacs_init.el")
-
 
 
 
@@ -40,15 +38,12 @@
 
 ;; conf-mode
 (add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
+(add-to-list 'auto-mode-alist '("\\.gitignore$" . conf-mode))
 
-;; (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.jsp\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-;; (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -70,6 +65,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#292b2e" :foreground "#b2b2b2" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 113 :width normal :foundry "outline" :family "Consolas")))))
+ '(default ((t (:inherit nil :stipple nil :background "#292b2e" :foreground "#b2b2b2" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 103 :width normal :foundry "outline" :family "Source Code Pro")))))
 
 ;; (require 'custom)

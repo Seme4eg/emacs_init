@@ -516,7 +516,7 @@ hide some major modes in spaceline
     :init
     (setq emmet-move-cursor-between-quotes t))
 #+END_SRC
-* Web-mode
+* Web-mode | [[web-mode.org][documentation]]
 #+BEGIN_SRC emacs-lisp
   ;; (add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
   ;; (add-to-list 'auto-mode-alist '("\\.twig$" . web-mode))
