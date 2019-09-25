@@ -30,21 +30,6 @@
 ;; (load (get-gullpath "modes.el"))
 ;; (load "~/.emacs.d/modes.el")
 
-
-
-
-;; shell-script-mode
-(add-to-list 'auto-mode-alist '("\\.zsh$" . shell-script-mode))
-
-;; conf-mode
-(add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
-(add-to-list 'auto-mode-alist '("\\.gitignore$" . conf-mode))
-
-(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -58,7 +43,7 @@
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
  '(package-selected-packages
    (quote
-    (avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))
+    (js2-mode company avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

@@ -73,6 +73,19 @@
 
   (global-auto-revert-mode nil)
   (flyspell-mode nil)
+
+  ;; Web
+  ;; shell-script-mode
+  (add-to-list 'auto-mode-alist '("\\.zsh$" . shell-script-mode))
+
+  ;; conf-mode
+  (add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
+  (add-to-list 'auto-mode-alist '("\\.gitignore$" . conf-mode))
+
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
 #+END_SRC
 
 ** Keybindings
@@ -118,6 +131,9 @@ ido + smex | helm | swiper -- 3 different ways
 
      ;; (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
      ;; (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+     ;; Allow confusing functions
+     (put 'narrow-to-region 'disabled nil)
    #+END_SRC
 
 
@@ -192,10 +208,33 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
 
 
 * Default packages
+** Dired
 #+BEGIN_SRC emacs-lisp
   (setq dired-dwim-target t)
+  (put 'dired-find-alternate-file 'disabled nil)
+
+  (require 'dired-x)
+  (setq dired-omit-files "^\\.?#\\|^\\.[^.].*")
+
+  (defun air-dired-buffer-dir-or-home ()
+    "Open dired to the current buffer's dir, or $HOME."
+    (interactive)
+    (let ((cwd (or (file-name-directory (or (buffer-file-name) ""))
+		   (expand-file-name "~"))))
+      (dired cwd)))
+
+  (add-hook 'dired-mode-hook (lambda ()
+			       (dired-omit-mode t)))
+
+  (eval-after-load 'wdired
+    (add-hook 'wdired-mode-hook 'evil-normal-state))
 #+END_SRC
 
+** Other
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'css-mode-hook (lambda ()
+			     (rainbow-mode)))
+#+END_SRC
 * Packages update
 *slows down the startup A LOT*
 #+BEGIN_SRC emacs-lisp
@@ -206,7 +245,6 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
   ;;   (auto-package-update-maybe))
 #+END_SRC
 * ORG
-  *do that with 'use-package'
 ** main settings
 #+BEGIN_SRC emacs-lisp
   (use-package org
@@ -429,15 +467,41 @@ hide some major modes in spaceline
     (diminish 'undo-tree-mode))
 #+END_SRC
 
-* Auto-complete
+* Company
+[[https://github.com/company-mode/company-mode/issues/68#issuecomment-36208504][company vs auto-complete]]
+
 #+BEGIN_SRC emacs-lisp
-  (use-package auto-complete
+  (use-package company
+    :defer t
     :init
-    (ac-config-default)
-    (setq ac-use-menu-map t)
-    (setq ac-use-quick-help nil)
-    (define-key ac-menu-map "\C-n" 'ac-next)
-    (define-key ac-menu-map "\C-p" 'ac-previous))
+    (global-company-mode)
+
+    :config
+    (defun org-keyword-backend (command &optional arg &rest ignored)
+      "Company backend for org keywords.
+  COMMAND, ARG, IGNORED are the arguments required by the variable
+  `company-backends', which see."
+      (interactive (list 'interactive))
+      (cl-case command
+	(interactive (company-begin-backend 'org-keyword-backend))
+	(prefix (and (eq major-mode 'org-mode)
+		     (let ((p (company-grab-line "^#\\+\\(\\w*\\)" 1)))
+		       (if p (cons p t)))))
+	(candidates (mapcar #'upcase
+			    (cl-remove-if-not
+			     (lambda (c) (string-prefix-p arg c))
+			     (pcomplete-completions))))
+	(ignore-case t)
+	(duplicates t)))
+    (add-to-list 'company-backends 'org-keyword-backend)
+
+    (set (make-local-variable 'company-backends) '(company-css company-web-html company-yasnippet company-files))
+    (setq company-idle-delay 0.4)
+    (setq company-selection-wrap-around t)
+    (define-key company-active-map (kbd "ESC") 'company-abort)
+    (define-key company-active-map [tab] 'company-complete-common-or-cycle)
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous))
 #+END_SRC
 
 * Switch-window
@@ -487,8 +551,25 @@ hide some major modes in spaceline
   (use-package yasnippet
     :config
     (use-package yasnippet-snippets)
-    (yas-reload-all)) ;; ur custom snippets won't work untill u run this
+    (yas-reload-all) ;; ur custom snippets won't work untill u run this
+    (add-hook 'prog-mode-hook #'yas-minor-mode))
 #+END_SRC
+
+* js2-mode | [[https://github.com/mooz/js2-mode][github]]
+Improved JavaScript editing mode for GNU Emacs
+
+#+BEGIN_SRC emacs-lisp
+  (use-package js2-mode
+    :ensure t
+    :config
+    (setq js2-strict-missing-semi-warning nil)
+    (setq js2-missing-semi-one-line-override t)
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+    (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode)))
+#+END_SRC
+
 
 * Avy
 #+BEGIN_SRC emacs-lisp
@@ -518,9 +599,6 @@ hide some major modes in spaceline
 #+END_SRC
 * Web-mode | [[web-mode.org][documentation]]
 #+BEGIN_SRC emacs-lisp
-  ;; (add-to-list 'auto-mode-alist '("\\.html$" . web-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.twig$" . web-mode))
-
   (use-package web-mode
     :defer t
     :config
@@ -529,14 +607,18 @@ hide some major modes in spaceline
     (setq web-mode-markup-indent-offset 2)
     (setq web-mode-css-indent-offset 2)
     (setq web-mode-code-indent-offset 2)
-    (setq web-mode-attr-indent-offset 2)
-    (setq web-mode-indent-style 2)
+    (setq web-mode-attr-indent-offset t)
     (setq web-mode-sql-indent-offset 2)
+    (setq web-mode-indent-style 2)
+    (setq web-mode-enable-current-column-highlight t)
+    (setq web-mode-enable-current-element-highlight t)
     ;; set up per-language ac-sources
-    (setq web-mode-ac-sources-alist
-	  '(("css" . (ac-source-css-property))
-	    ("html" . (ac-source-words-in-buffer ac-source-abbrev))
-	    ("php" . (ac-source-php-extras ac-source-yasnippet ac-source-gtags ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))))
+    (define-key web-mode-map (kbd "C-n") 'web-mode-tag-match)
+
+  ;;  (setq web-mode-ac-sources-alist
+  ;;	'(("php" . (ac-source-php-extras ac-source-yasnippet ac-source-php-auto-yasnippets))
+  ;;	  ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
+  ;;	  ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
 
     (add-hook 'web-mode-hook
 	      (lambda ()
@@ -568,7 +650,7 @@ hide some major modes in spaceline
   ;;             (lambda ()
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
-  ;; 
+  ;;
   ;;   (defun gtags-reindex ()
   ;;     "Kick off gtags reindexing."
   ;;     (interactive)
@@ -577,17 +659,17 @@ hide some major modes in spaceline
   ;;       (if (file-exists-p gtags-filename)
   ;;           (gtags-index-update root-path)
   ;;         (gtags-index-initial root-path))))
-  ;; 
+  ;;
   ;;   (defun gtags-index-initial (path)
   ;;     "Generate initial GTAGS files for PATH."
   ;;     (let ((bpr-process-directory path))
   ;;       (bpr-spawn "gtags")))
-  ;; 
+  ;;
   ;;   (defun gtags-index-update (path)
   ;;     "Update GTAGS in PATH."
   ;;     (let ((bpr-process-directory path))
   ;;       (bpr-spawn "global -uv"))))
-  ;; 
+  ;;
   ;; (provide 'init-gtags)
 
   ;; =====
@@ -599,7 +681,7 @@ hide some major modes in spaceline
   ;;             (lambda ()
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window))))
-  ;; 
+  ;;
   ;; (defun gtags-reindex ()
   ;;   "Kick off gtags reindexing."
   ;;   (interactive)
@@ -608,12 +690,12 @@ hide some major modes in spaceline
   ;;     (if (file-exists-p gtags-filename)
   ;;         (gtags-index-update root-path)
   ;;       (gtags-index-initial root-path))))
-  ;; 
+  ;;
   ;; (defun gtags-index-initial (path)
   ;;   "Generate initial GTAGS files for PATH."
   ;;   (let ((bpr-process-directory path))
   ;;     (bpr-spawn "gtags")))
-  ;; 
+  ;;
   ;; (defun gtags-index-update (path)
   ;;   "Update GTAGS in PATH."
   ;;   (let ((bpr-process-directory path))
@@ -691,33 +773,30 @@ hide some major modes in spaceline
   ;; edit
   (defun config-visit()
     (interactive)
+    ;; (find-file "~/.emacs.d/config/config.org"))
     (find-file "~/.emacs.d/config/config.org"))
   (global-set-key (kbd "C-c e") 'config-visit)
 
   ;; reload
   (defun config-reload()
     (interactive)
-    (org-babel-load-file (get-fullpath "~/.emacs.d/config/config.org")))
+    (org-babel-load-file (get-fullpath "config/config.org")))
   (global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
 ** Identation & buffer cleanups
 #+BEGIN_SRC emacs-lisp
   ;; This re-indents, untabifies, and cleans up whitespace
-  (defun untabify-buffer ()
-    (interactive)
-    (untabify (point-min) (point-max)))
-
   (defun indent-buffer ()
     (interactive)
     (indent-region (point-min) (point-max)))
 
-  "Perform a bunch of operations on the whitespace content of a buffer."
   (defun cleanup-buffer ()
-    (interactive)
-    (indent-buffer)
-    (untabify-buffer)
-    (delete-trailing-whitespace))
-  ;; (global-set-key (kbd "C-c n") 'cleanup-buffer)
+    "Delete trailing whitespace if the buffer is in `prog-' or `org-mode'."
+    (if (or (derived-mode-p 'prog-mode)
+	    (derived-mode-p 'org-mode))
+	(indent-buffer)
+	(delete-trailing-whitespace))
+  (add-to-list 'write-file-functions 'cleanup-buffer)
 
   "Remove tmux artifacts from region."
   (defun cleanup-region (beg end)

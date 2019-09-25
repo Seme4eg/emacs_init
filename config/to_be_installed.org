@@ -1,0 +1,35 @@
+* Hight priority
+
+* ag | [[https://github.com/Wilfred/ag.el][github]]
+allows you to search using ag from inside Emacs. You can filter by
+file type, edit results inline, or find files
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ag
+    :ensure t
+    :commands (ag ag-project)
+    :config
+    (add-hook 'ag-mode-hook
+	      (lambda ()
+		(wgrep-ag-setup)
+		(define-key ag-mode-map (kbd "n") 'evil-search-next)
+		(define-key ag-mode-map (kbd "N") 'evil-search-previous)))
+    (setq ag-executable "/usr/local/bin/ag")
+    (setq ag-highlight-search t)
+    (setq ag-reuse-buffers t)
+    (setq ag-reuse-window t))
+#+END_SRC
+
+
+* To know about
+** exec-path-from-shell | [[https://github.com/purcell/exec-path-from-shell][github]]
+Make Emacs use the $PATH set up by the user's shell
+
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :defer t
+    :config
+    (when (memq window-system '(mac ns))
+      (exec-path-from-shell-initialize)))
+#+END_SRC
