@@ -1,29 +1,26 @@
 (setenv "SSH_ASKPASS" "git-gui--askpass")
 
+;; increase the cache before starting garbage collection
+(setq gc-cons-threshold 50000000)
+
+;; remove the warnings from the GnuTLS library when using HTTPS…
+;; increase the minimum prime bits size:
+(setq gnutls-min-prime-bits 4096)
+
 (require 'package)
-(package-initialize)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+(setq package-archives '(("org"       . "http://orgmode.org/elpa/")
+                         ("gnu"       . "http://elpa.gnu.org/packages/")
+                         ("melpa"     . "http://melpa.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")))
+(package-initialize)
+(package-refresh-contents)
 
 "Return the full path of *file-relative-path, relative to caller's file location."
 (defun get-fullpath (@file-relative-path)
   (concat (file-name-directory (or load-file-name buffer-file-name)) @file-relative-path)
 )
 
-;; make sure package is installed
-(unless (package-installed-p 'use-package) ;; if not..
-  (package-refresh-contents)
-  (package-install 'use-package))
-
-(require 'use-package-ensure)
-(setq use-package-always-ensure t) ;; instead of putting ':ensure' everywhere
-
-;; use-package setup
-(eval-when-compile
-  (require 'use-package))
-
-;; f
 ;; htmlize
 
 (org-babel-load-file (get-fullpath "config/config.org"))
@@ -43,7 +40,7 @@
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
  '(package-selected-packages
    (quote
-    (js2-mode company avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))
+    (wrap-region js2-mode company avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

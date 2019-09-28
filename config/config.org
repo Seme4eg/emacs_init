@@ -1,3 +1,16 @@
+* Use-package
+Automatically install certain packages, as well as the ease of lazily loading them
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'use-package) ;; if not..
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (eval-when-compile
+    (require 'use-package))
+
+  (require 'use-package-ensure)
+  (setq use-package-always-ensure t) ;; instead of putting ':ensure' everywhere
+#+END_SRC
 * Evil
 ** evil itself
 #+BEGIN_SRC emacs-lisp
@@ -19,15 +32,21 @@
 #+END_SRC
 
 * Environment
+** Identation
+I have learned to distrust tabs in my source code, so let’s make sure
+that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space_indentation_setup.html][discussion]] for details.
+#+BEGIN_SRC emacs-lisp
+  (setq-default indent-tabs-mode nil)
+  (setq tab-width 2)
+
+  ;; make return key also do indent, globally (test)
+  (electric-indent-mode 1)
+
+  ;; Make tab key do indent first then completion.
+  (setq-default tab-always-indent 'complete)
+#+END_SRC
 ** Major settings
 #+BEGIN_SRC emacs-lisp
-  (require 'cl-lib) ;; new library for common-lib compatability
-
-  ;; Splash Screen
-  (setq inhibit-splash-screen t
-      initial-scratch-message nil
-      initial-major-mode 'org-mode)
-
   (setq fill-column 80)
 
   (setq x-select-enable-clipboard t)
@@ -37,6 +56,13 @@
   (setq auto-save-default nil) ;; disable auto-save files
 
   (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
+
+  ;; Fix the scrolling to keep point in the center
+  (setq scroll-conservatively 10000
+        scroll-preserve-screen-position t)
+
+  ;; no need to re-enable each feature bit-by-bit:
+  (setq disabled-command-function nil)
 
   ;; Misc
   (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
@@ -50,8 +76,19 @@
   (dolist (project (directory-files sads/vendor-dir t "\\w+"))
   (when (file-directory-p project)
       (add-to-list 'load-path project)))
+#+END_SRC
 
-  (add-hook 'markdown-mode-hook 'auto-fill-mode)
+** Init file support
+#+BEGIN_SRC emacs-lisp
+  ;; (require 'cl)
+  (require 'cl-lib) ;; new library for common-lib compatability
+
+  (use-package dash
+    :ensure t
+    :config (eval-after-load "dash" '(dash-enable-font-lock)))
+
+  (use-package s :ensure t)
+  (use-package f :ensure t)
 #+END_SRC
 ** Modes
 #+BEGIN_SRC emacs-lisp
@@ -73,6 +110,7 @@
 
   (global-auto-revert-mode nil)
   (flyspell-mode nil)
+  (add-hook 'markdown-mode-hook 'auto-fill-mode)
 
   ;; Web
   ;; shell-script-mode
@@ -90,7 +128,6 @@
 
 ** Keybindings
 #+BEGIN_SRC emacs-lisp
-  ;; (global-set-key (kbd "RET") 'newline-and-indent)
   (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
   (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
   (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
@@ -99,11 +136,9 @@
 #+END_SRC
 
 ** Navigation
-ido + smex | helm | swiper -- 3 different ways
 #+BEGIN_SRC emacs-lisp
   (setq ibuffer-expert t)
 #+END_SRC
-*** Buffers
 #+BEGIN_SRC emacs-lisp
   (evil-leader/set-key "w" 'save-buffer)
   (evil-leader/set-key "bd" 'kill-buffer)
@@ -112,16 +147,9 @@ ido + smex | helm | swiper -- 3 different ways
   (global-set-key (kbd "C-c p") 'mode-line-other-buffer)
 #+END_SRC
 
-*** Window configurations
-#+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key "cs" 'window-configuration-to-register)
-  (evil-leader/set-key "cr" 'jump-to-register)
-#+END_SRC
-
 ** Not used / unknown purpose
    #+BEGIN_SRC emacs-lisp
      ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
-     ;; (setq exec-path (append exec-path '("/usr/local/bin")))
 
      ;; Terminal setup (stop prompt appearing each time when starting 'ansi-term')
      ;; (defvar my-term-shell "/bin/bash")
@@ -156,6 +184,27 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
+
+** Display settings
+#+BEGIN_SRC emacs-lisp
+  ;; Splash Screen
+  (setq inhibit-splash-screen t
+      initial-scratch-message nil
+      initial-major-mode 'org-mode)
+
+  ;; Get rid of the beeps
+  (setq visible-bell t)
+
+  ;; Scroll-, tool-, menu bars*
+  (menu-bar-mode -1)
+  (when (window-system)
+    (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+    (when (fboundp 'horizontal-scroll-bar-mode)
+      (horizontal-scroll-bar-mode -1))
+    (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+
+  ;; (if window-system (toggle-scroll-bar -1))
+#+END_SRC
 ** Other visual settings
 #+BEGIN_SRC emacs-lisp
   ;; Change cursor color depending on mode (only GUI emacs)
@@ -166,25 +215,10 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
   (setq evil-replace-state-cursor '("red" bar))
   (setq evil-operator-state-cursor '("cyan" hollow))
 
-  ;; Indentation
-  (setq tab-width 2
-        indent-tabs-mode nil)
-
-  ;; Scroll-, tool-, menu bars*
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (if window-system (toggle-scroll-bar -1))
-
-  ;; show line numbers
-  (when (version<= "26.0.50" emacs-version )
-  (global-display-line-numbers-mode))
-
   ;; Display Settings
   (setq-default indicate-empty-lines t)
   (when (not indicate-empty-lines)
   (toggle-indicate-empty-lines))
-
-  (setq-default show-trailing-whitespace t)
 
   (show-paren-mode t) ;; highlight parentheses
 #+END_SRC
@@ -365,7 +399,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (evil-leader/set-key "gs" 'magit-status))
 #+END_SRC
 * IDO
-  is it possible to make ido search for regexp?
+  ido + smex | helm | ivy -- 3 different ways
 ** IDO enable
 #+BEGIN_SRC emacs-lisp
   (setq ido-enable-flex-matching t)
@@ -415,12 +449,76 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
   (evil-leader/set-key "mu" 'evil-mc-undo-last-added-cursor)
 #+END_SRC
 
-* Projectile
+* Projectile | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]]
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
+    :diminish projectile-mode
     :init
-    (projectile-mode +1)
-    (evil-leader/set-key "pf" 'projectile-find-file))
+    (projectile-global-mode 1)
+    (setq projectile-keymap-prefix (kbd "C-x p"))
+    (evil-leader/set-key "pf" 'projectile-find-file)
+    ;; rebind this to some leader keys
+    :bind (("C-x p s" . projectile-ag)
+           ("C-x p p" . projectile-switch-project)
+           ("C-x p g" . projectile-grep)
+           ("C-x p R" . projectile-regenerate-tags))
+    :commands projectile-ag
+    :config
+    (setq projectile-switch-project-action 'projectile-commander
+          projectile-completion-system 'ido
+          projectile-create-missing-test-files t)
+    ;; (add-to-list 'projectile-globally-ignored-files ".DS_Store")
+
+    (def-projectile-commander-method ?d
+      "Open project root in dired."
+      (projectile-dired))
+
+    (def-projectile-commander-method ?s
+      "Open a *shell* buffer for the project."
+      (projectile-run-shell))
+
+    (def-projectile-commander-method ?F
+      "Git fetch."
+      (magit-status)
+      (call-interactively #'magit-fetch-current))
+
+    (def-projectile-commander-method ?j
+      "Jack-in."
+      (let* ((opts (projectile-current-project-files))
+             (file (ido-completing-read
+                    "Find file: "
+                    opts
+                    nil nil nil nil
+                    (car (cl-member-if
+                          (lambda (f)
+                            (string-match "core\\.clj\\'" f))
+                          opts)))))
+        (find-file (expand-file-name
+                    file (projectile-project-root)))
+        (run-hooks 'projectile-find-file-hook)
+        (cider-jack-in))))
+#+END_SRC
+
+* Perspective | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][source]]
+My workflow consists of:
+- C-x x P to investigate a new project with its new perspective (this
+also saves off whatever I was doing)
+- C-x x x switches to whatever I was doing before
+- C-x x s switches to a project’s perspective based on its name
+
+#+BEGIN_SRC emacs-lisp
+  (use-package perspective
+    :ensure t
+    :bind ("C-x x x" . persp-switch-last)
+    :init (persp-mode +1)
+
+    (use-package persp-projectile
+      :ensure t
+      :bind ("C-x x P" . projectile-persp-switch-project))
+
+    :config
+      (setq persp-interactive-completion-function #'ido-completing-read)
+      (persp-turn-off-modestring))
 #+END_SRC
 
 * Markdown-mode
@@ -505,6 +603,8 @@ hide some major modes in spaceline
 #+END_SRC
 
 * Switch-window
+alternative - 'Ace-window'
+
 #+BEGIN_SRC emacs-lisp
   (use-package switch-window
     :config
@@ -555,6 +655,43 @@ hide some major modes in spaceline
     (add-hook 'prog-mode-hook #'yas-minor-mode))
 #+END_SRC
 
+* Wrap-region | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]]
+#+BEGIN_SRC emacs-lisp
+  (use-package wrap-region
+    :config
+    (wrap-region-global-mode t)
+    (wrap-region-add-wrappers
+     '(("(" ")")
+       ("[" "]")
+       ("{" "}")
+       ("<" ">")
+       ("'" "'")
+       ("\"" "\"")
+       ("‘" "’"   "q")
+       ("“" "”"   "Q")
+       ("*" "*"   "b"   org-mode)                 ; bolden
+       ("*" "*"   "*"   org-mode)                 ; bolden
+       ("/" "/"   "i"   org-mode)                 ; italics
+       ("/" "/"   "/"   org-mode)                 ; italics
+       ("~" "~"   "c"   org-mode)                 ; code
+       ("~" "~"   "~"   org-mode)                 ; code
+       ("=" "="   "v"   org-mode)                 ; verbatim
+       ("=" "="   "="   org-mode)                 ; verbatim
+       ("_" "_"   "u" '(org-mode markdown-mode))  ; underline
+       ("**" "**" "b"   markdown-mode)            ; bolden
+       ("*" "*"   "i"   markdown-mode)            ; italics
+       ("`" "`"   "c" '(markdown-mode))           ; code
+       ("`" "'"   "c"   lisp-mode)                ; code
+       ))
+    :diminish wrap-region-mode)
+#+END_SRC
+* Workgroups | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#workgroups][source]]
+Periodically check [[https://github.com/pashinin/workgroups2][workgroups2]]
+
+#+BEGIN_SRC emacs-lisp
+  ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
+  ;; (evil-leader/set-key "cr" 'jump-to-register)
+#+END_SRC
 * js2-mode | [[https://github.com/mooz/js2-mode][github]]
 Improved JavaScript editing mode for GNU Emacs
 
@@ -574,6 +711,7 @@ Improved JavaScript editing mode for GNU Emacs
 * Avy
 #+BEGIN_SRC emacs-lisp
   (use-package avy
+    :init (setq avy-background t)
     :config
     (evil-leader/set-key "SPC" 'avy-goto-char))
 #+END_SRC
@@ -615,30 +753,28 @@ Improved JavaScript editing mode for GNU Emacs
     ;; set up per-language ac-sources
     (define-key web-mode-map (kbd "C-n") 'web-mode-tag-match)
 
-  ;;  (setq web-mode-ac-sources-alist
-  ;;	'(("php" . (ac-source-php-extras ac-source-yasnippet ac-source-php-auto-yasnippets))
-  ;;	  ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
-  ;;	  ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
+    ;;  (setq web-mode-ac-sources-alist
+    ;;	'(("php" . (ac-source-php-extras ac-source-yasnippet ac-source-php-auto-yasnippets))
+    ;;	  ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
 
     (add-hook 'web-mode-hook
-	      (lambda ()
-		(yas-minor-mode t)
-		(emmet-mode)
-		;; (flycheck-add-mode 'html-tidy 'web-mode)
-		(flycheck-add-mode 'web-mode)
-		(flycheck-mode)))
+              (lambda ()
+                (yas-minor-mode t)
+                (emmet-mode)
+                ;; (flycheck-add-mode 'html-tidy 'web-mode)
+                (flycheck-add-mode 'web-mode)
+                (flycheck-mode)))
 
     (add-hook 'web-mode-before-auto-complete-hooks
-	      '(lambda ()
-		 (let ((web-mode-cur-language (web-mode-language-at-pos)))
-		   (if (string= web-mode-cur-language "php")
-		       (yas-activate-extra-mode 'php-mode)
-		     (yas-deactivate-extra-mode 'php-mode))
-		   (if (string= web-mode-cur-language "css")
-		       (setq emmet-use-css-transform t)
-		     (setq emmet-use-css-transform nil)))))
+              '(lambda ()
+                 (let ((web-mode-cur-language (web-mode-language-at-pos)))
+                   (if (string= web-mode-cur-language "php")
+                       (yas-activate-extra-mode 'php-mode)
+                     (yas-deactivate-extra-mode 'php-mode))
+                   (if (string= web-mode-cur-language "css")
+                       (setq emmet-use-css-transform t)
+                     (setq emmet-use-css-transform nil)))))
     )
-  ;; INSTALL flycheck, emmet and html-tidy asap
 #+END_SRC
 
 * Gtags
@@ -794,8 +930,8 @@ Improved JavaScript editing mode for GNU Emacs
     "Delete trailing whitespace if the buffer is in `prog-' or `org-mode'."
     (if (or (derived-mode-p 'prog-mode)
 	    (derived-mode-p 'org-mode))
-	(indent-buffer)
-	(delete-trailing-whitespace))
+	;; (indent-buffer)
+	(delete-trailing-whitespace)))
   (add-to-list 'write-file-functions 'cleanup-buffer)
 
   "Remove tmux artifacts from region."

@@ -1,4 +1,6 @@
 * Hight priority
+** Encrypting files
+https://github.com/howardabrams/dot-files/blob/master/emacs.org#encrypting-files
 
 * ag | [[https://github.com/Wilfred/ag.el][github]]
 allows you to search using ag from inside Emacs. You can filter by
@@ -33,3 +35,111 @@ Make Emacs use the $PATH set up by the user's shell
     (when (memq window-system '(mac ns))
       (exec-path-from-shell-initialize)))
 #+END_SRC
+** Fill Mode
+Automatically wrapping when you get to the end of a line (or the fill-region):
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fill
+    :bind (("C-c T f" . auto-fill-mode)
+           ("C-c T t" . toggle-truncate-lines))
+    :init (add-hook 'org-mode-hook 'turn-on-auto-fill)
+    :diminish auto-fill-mode)
+#+END_SRC
+
+** Which-key
+Displaying Command Sequences
+
+Many command sequences may be logical, but who can remember them all?
+While I used to use guide-key to display the final function name, it
+isn’t as nice as which-key.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :defer 10
+    :diminish which-key-mode
+    :config
+
+    ;; Replacements for how KEY is replaced when which-key displays
+    ;;   KEY → FUNCTION
+    ;; Eg: After "C-c", display "right → winner-redo" as "▶ → winner-redo"
+    (setq which-key-key-replacement-alist
+          '(("<\\([[:alnum:]-]+\\)>" . "\\1")
+            ("left"                  . "◀")
+            ("right"                 . "▶")
+            ("up"                    . "▲")
+            ("down"                  . "▼")
+            ("delete"                . "DEL") ; delete key
+            ("\\`DEL\\'"             . "BS") ; backspace key
+            ("next"                  . "PgDn")
+            ("prior"                 . "PgUp"))
+
+          ;; List of "special" keys for which a KEY is displayed as just
+          ;; K but with "inverted video" face... not sure I like this.
+          which-key-special-keys '("RET" "DEL" ; delete key
+                                   "ESC" "BS" ; backspace key
+                                   "SPC" "TAB")
+
+          ;; Replacements for how part or whole of FUNCTION is replaced:
+          which-key-description-replacement-alist
+          '(("Prefix Command" . "prefix")
+            ("\\`calc-"       . "") ; Hide "calc-" prefixes when listing M-x calc keys
+            ("\\`projectile-" . "𝓟/")
+            ("\\`org-babel-"  . "ob/"))
+
+          ;; Underlines commands to emphasize some functions:
+          which-key-highlighted-command-list
+          '("\\(rectangle-\\)\\|\\(-rectangle\\)"
+            "\\`org-"))
+
+    ;; Change what string to display for a given *complete* key binding
+    ;; Eg: After "C-x", display "8 → +unicode" instead of "8 → +prefix"
+    (which-key-add-key-based-replacements
+     "C-x 8"   "unicode"
+     "C-c T"   "toggles-"
+     "C-c p s" "projectile-search"
+     "C-c p 4" "projectile-other-buffer-"
+     "C-x a"   "abbrev/expand"
+     "C-x r"   "rect/reg"
+     "C-c /"   "engine-mode-map"
+     "C-c C-v" "org-babel")
+
+    (which-key-mode 1))
+#+END_SRC
+** Expand-region
+#+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :config
+    (defun ha/expand-region (lines)
+      "Prefix-oriented wrapper around Magnar's `er/expand-region'.
+
+  Call with LINES equal to 1 (given no prefix), it expands the
+  region as normal.  When LINES given a positive number, selects
+  the current line and number of lines specified.  When LINES is a
+  negative number, selects the current line and the previous lines
+  specified.  Select the current line if the LINES prefix is zero."
+      (interactive "p")
+      (cond ((= lines 1)   (er/expand-region 1))
+            ((< lines 0)   (ha/expand-previous-line-as-region lines))
+            (t             (ha/expand-next-line-as-region (1+ lines)))))
+
+    (defun ha/expand-next-line-as-region (lines)
+      (message "lines = %d" lines)
+      (beginning-of-line)
+      (set-mark (point))
+      (end-of-line lines))
+
+    (defun ha/expand-previous-line-as-region (lines)
+      (end-of-line)
+      (set-mark (point))
+      (beginning-of-line (1+ lines)))
+
+    :bind ("C-=" . ha/expand-region))
+#+END_SRC
+** Direx
+The direx package is a tree-based variation of dired, and it gives an
+ide-like look and feel. Not sure of its useful-ness.
+https://github.com/howardabrams/dot-files/blob/master/emacs.org#direx
+** Undo and redo
+https://github.com/howardabrams/dot-files/blob/master/emacs.org#undo-and-redo
