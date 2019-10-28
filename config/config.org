@@ -398,14 +398,15 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
 * IVY | [[https://oremacs.com/swiper/][manual]]
   ido | helm | ivy -- 3 different ways
 ** IVY enable
+[[https://github.com/abo-abo/swiper#counsel][counsel setup]]
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :config
     (use-package flx)
     (ivy-mode 1)
+    (counsel-mode 1)
     :bind
-    ("C-s" . swiper)
-    ("M-x" . swiper)
+    ("C-s" . swiper-isearch)
     :init
     (setq ivy-use-virtual-buffers t)
     ;; (setq ivy-count-format "(%d/%d) ")
@@ -452,8 +453,8 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (setq projectile-keymap-prefix (kbd "C-x p"))
     (evil-leader/set-key "pf" 'projectile-find-file)
     ;; rebind this to some leader keys
-    :bind (("C-x p s" . projectile-ag)
-           ("C-x p p" . projectile-switch-project)
+    ;; ("C-x p s" . projectile-ag)
+    :bind (("C-x p p" . projectile-switch-project)
            ("C-x p g" . projectile-grep)
            ("C-x p R" . projectile-regenerate-tags))
     :commands projectile-ag
@@ -751,6 +752,11 @@ Improved JavaScript editing mode for GNU Emacs
 
 * G[g]tags | [[https://github.com/leoliu/ggtags][github]]
 #+BEGIN_SRC emacs-lisp
+  ;; == trying to make ggtags work ==
+  ;; (use-package ggtags
+  ;;   :hook (prog-mode . ggtags-mode))
+
+
   ;; (when (and (maybe-require-package 'gtags)
   ;;            (maybe-require-package 'bpr))
   ;;   ;; Bind some useful keys in the gtags select buffer that evil overrides.
