@@ -57,10 +57,6 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
   (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
 
-  ;; Fix the scrolling to keep point in the center
-  (setq scroll-conservatively 10000
-        scroll-preserve-screen-position t)
-
   ;; no need to re-enable each feature bit-by-bit:
   (setq disabled-command-function nil)
 
@@ -100,6 +96,7 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
   ;; to be able to move in camelCase
   (global-subword-mode 1)
+  (global-linum-mode 1)
 
   ;; make electric-pair-mode work on more brackets
   ;; disabled function below cuz it inserts '' even in "don't'" words..
@@ -398,34 +395,31 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (evil-leader/set-key "gi" 'magit-init)
     (evil-leader/set-key "gs" 'magit-status))
 #+END_SRC
-* IDO
-  ido + smex | helm | ivy -- 3 different ways
-** IDO enable
+* IVY | [[https://oremacs.com/swiper/][manual]]
+  ido | helm | ivy -- 3 different ways
+** IVY enable
 #+BEGIN_SRC emacs-lisp
-  (setq ido-enable-flex-matching t)
-  (setq ido-create-new-buffer 'always)
-  (setq ido-everywhere t)
-  (setq ido-use-filename-at-point 'guess) ;; enable Fine File At Point
-  (setq ido-use-url-at-point nil) ;; disable URL ffap
-  (setq ido-file-extensions-order '(".org" ".js" ".html" ".emacs" ".el" ".ini" ".cfg" ".cnf"))
-  (ido-mode 1)
-#+END_SRC
-** IDO-vertical
-#+BEGIN_SRC emacs-lisp
-  (use-package ido-vertical-mode
+  (use-package counsel
+    :config
+    (use-package flx)
+    (ivy-mode 1)
+    :bind
+    ("C-s" . swiper)
+    ("M-x" . swiper)
     :init
-    (ido-vertical-mode 1))
-    (setq ido-vertical-define-keys 'C-n-and-C-p-only) ;; move between options
+    (setq ivy-use-virtual-buffers t)
+    ;; (setq ivy-count-format "(%d/%d) ")
+    (setq ivy-count-format "")
+    (setq ivy-initial-inputs-alist nil)
+    (setq ivy-re-builders-alist
+          '((t . ivy--regex-fuzzy))))
 #+END_SRC
 ** Smex
 *Package to get completion in ~M-x~ menu (and most used commands will be at top)*
 #+BEGIN_SRC emacs-lisp
   (use-package smex
     :init (smex-initialize)
-
-    :bind
-    ("M-x" . smex)
-    ("M-X" . smex-major-mode-commands))
+    :bind ("M-X" . smex-major-mode-commands))
 
   ;; don't know for what is setting below
   ;; (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
@@ -465,7 +459,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     :commands projectile-ag
     :config
     (setq projectile-switch-project-action 'projectile-commander
-          projectile-completion-system 'ido
+          projectile-completion-system 'ivy
           projectile-create-missing-test-files t)
     ;; (add-to-list 'projectile-globally-ignored-files ".DS_Store")
 
@@ -480,23 +474,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (def-projectile-commander-method ?F
       "Git fetch."
       (magit-status)
-      (call-interactively #'magit-fetch-current))
-
-    (def-projectile-commander-method ?j
-      "Jack-in."
-      (let* ((opts (projectile-current-project-files))
-             (file (ido-completing-read
-                    "Find file: "
-                    opts
-                    nil nil nil nil
-                    (car (cl-member-if
-                          (lambda (f)
-                            (string-match "core\\.clj\\'" f))
-                          opts)))))
-        (find-file (expand-file-name
-                    file (projectile-project-root)))
-        (run-hooks 'projectile-find-file-hook)
-        (cider-jack-in))))
+      (call-interactively #'magit-fetch-current)))
 #+END_SRC
 
 * Perspective | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][source]]
@@ -507,18 +485,17 @@ also saves off whatever I was doing)
 - C-x x s switches to a project’s perspective based on its name
 
 #+BEGIN_SRC emacs-lisp
-  (use-package perspective
-    :ensure t
-    :bind ("C-x x x" . persp-switch-last)
-    :init (persp-mode +1)
+  ;; (use-package perspective
+  ;;   :ensure t
+  ;;   :bind ("C-x x x" . persp-switch-last)
+  ;;   :init (persp-mode +1)
 
-    (use-package persp-projectile
-      :ensure t
-      :bind ("C-x x P" . projectile-persp-switch-project))
+  ;;   (use-package persp-projectile
+  ;;     :ensure t
+  ;;     :bind ("C-x x P" . projectile-persp-switch-project))
 
-    :config
-      (setq persp-interactive-completion-function #'ido-completing-read)
-      (persp-turn-off-modestring))
+  ;;   :config
+  ;;     (persp-turn-off-modestring))
 #+END_SRC
 
 * Markdown-mode
@@ -640,11 +617,6 @@ alternative - 'Ace-window'
 #+BEGIN_SRC emacs-lisp
   (use-package popup-kill-ring
     :bind ("M-y" . popup-kill-ring))
-#+END_SRC
-* Swiper
-#+BEGIN_SRC emacs-lisp
-  (use-package swiper
-    :bind ("C-s" . swiper))
 #+END_SRC
 * Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -777,7 +749,7 @@ Improved JavaScript editing mode for GNU Emacs
     )
 #+END_SRC
 
-* Gtags
+* G[g]tags | [[https://github.com/leoliu/ggtags][github]]
 #+BEGIN_SRC emacs-lisp
   ;; (when (and (maybe-require-package 'gtags)
   ;;            (maybe-require-package 'bpr))
@@ -787,28 +759,9 @@ Improved JavaScript editing mode for GNU Emacs
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window)))
   ;;
-  ;;   (defun gtags-reindex ()
-  ;;     "Kick off gtags reindexing."
-  ;;     (interactive)
-  ;;     (let* ((root-path (expand-file-name (vc-git-root (buffer-file-name))))
-  ;;            (gtags-filename (expand-file-name "GTAGS" root-path)))
-  ;;       (if (file-exists-p gtags-filename)
-  ;;           (gtags-index-update root-path)
-  ;;         (gtags-index-initial root-path))))
-  ;;
-  ;;   (defun gtags-index-initial (path)
-  ;;     "Generate initial GTAGS files for PATH."
-  ;;     (let ((bpr-process-directory path))
-  ;;       (bpr-spawn "gtags")))
-  ;;
-  ;;   (defun gtags-index-update (path)
-  ;;     "Update GTAGS in PATH."
-  ;;     (let ((bpr-process-directory path))
-  ;;       (bpr-spawn "global -uv"))))
-  ;;
   ;; (provide 'init-gtags)
 
-  ;; =====
+  ;; === or
 
   ;; (use-package gtags
   ;;   :init
@@ -817,6 +770,8 @@ Improved JavaScript editing mode for GNU Emacs
   ;;             (lambda ()
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "RET") 'gtags-select-tag)
   ;;               (evil-define-key 'normal gtags-select-mode-map (kbd "q") 'kill-buffer-and-window))))
+
+  ;; === functions:
   ;;
   ;; (defun gtags-reindex ()
   ;;   "Kick off gtags reindexing."
