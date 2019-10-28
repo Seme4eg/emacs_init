@@ -637,12 +637,42 @@ alternative - 'Ace-window'
     :bind ("s-f" . sudo-edit))
 #+END_SRC
 
-* Workgroups | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#workgroups][source]]
-Periodically check [[https://github.com/pashinin/workgroups2][workgroups2]]
+* Perspective | [[https://github.com/nex3/perspective-el][github]]
+workflow common commands:
+- C-x x P to investigate a new project with its new perspective (this
+also saves off whatever I was doing)
+- C-x x x switches to whatever I was doing before
+- C-x x s switches to a project’s perspective based on its name
+
+  [[https://www.reddit.com/r/emacs/comments/d66s8r/how_to_get_the_most_from_perspectiveel/][adding predefined "layout"]] (+ source of code below)
 
 #+BEGIN_SRC emacs-lisp
-  ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
-  ;; (evil-leader/set-key "cr" 'jump-to-register)
+  (use-package perspective
+    :demand t
+    :bind ("C-x x x" . persp-switch-last)
+    :config
+    (use-package persp-projectile
+      :bind ("C-x x P" . projectile-persp-switch-project))
+    (setq persp-auto-resume-time -1 ;; No autoload buffers
+          persp-set-last-persp-for-new-frames nil
+          persp-reset-windows-on-nil-window-conf t
+          persp-autokill-buffer-on-remove t
+          persp-add-buffer-on-after-change-major-mode t
+          persp-kill-foreign-buffer-behaviour 'kill)
+    (persp-mode 1)
+    (persp-turn-off-modestring)
+    (define-key evil-normal-state-map (kbd "gt") 'persp-next)
+    (define-key evil-normal-state-map (kbd "gT") 'persp-prev)
+    ;; dunno what's the purpose of code below..
+    (with-eval-after-load "term"
+      (persp-def-auto-persp "term"
+                            :parameters '((dont-save-to-file . t))
+                            :mode 'term-mode
+                            :dyn-env '(after-switch-to-buffer-functions ;; prevent recursion
+                                       (persp-add-buffer-on-find-file nil)
+                                       persp-add-buffer-on-after-change-major-mode)
+                            :hooks '(after-switch-to-buffer-functions)
+                            :switch 'window)))
 #+END_SRC
 
 
@@ -793,29 +823,7 @@ Improved JavaScript editing mode for GNU Emacs
   ;;     (bpr-spawn "global -uv"))))
 #+END_SRC
 
-** Perspective | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][source]]
-My workflow consists of:
-- C-x x P to investigate a new project with its new perspective (this
-also saves off whatever I was doing)
-- C-x x x switches to whatever I was doing before
-- C-x x s switches to a project’s perspective based on its name
-
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package perspective
-  ;;   :ensure t
-  ;;   :bind ("C-x x x" . persp-switch-last)
-  ;;   :init (persp-mode +1)
-
-  ;;   (use-package persp-projectile
-  ;;     :ensure t
-  ;;     :bind ("C-x x P" . projectile-persp-switch-project))
-
-  ;;   :config
-  ;;     (persp-turn-off-modestring))
-#+END_SRC
-
-
-* Eshell (still dunno which terminal to use)
+** Eshell
 #+BEGIN_SRC emacs-lisp
   ;; (require 'f)
   ;;
@@ -852,6 +860,15 @@ also saves off whatever I was doing)
   ;;
   ;; (setq eshell-cmpl-cycle-completions nil)
   ;;
+#+END_SRC
+
+
+** Workgroups | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#workgroups][source]]
+Periodically check [[https://github.com/pashinin/workgroups2][workgroups2]]
+
+#+BEGIN_SRC emacs-lisp
+  ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
+  ;; (evil-leader/set-key "cr" 'jump-to-register)
 #+END_SRC
 
 
