@@ -31,6 +31,24 @@ Automatically install certain packages, as well as the ease of lazily loading th
     (evil-leader/set-leader ","))
 #+END_SRC
 
+** evil Multiple-Cursors | [[https://github.com/gabesoft/evil-mc][github]]
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-mc
+    :init
+    (global-evil-mc-mode 1)
+    (evil-define-key 'visual evil-mc-key-map
+      "A" #'evil-mc-make-cursor-in-visual-selection-end
+      "I" #'evil-mc-make-cursor-in-visual-selection-beg))
+
+  (evil-leader/set-key "ma" 'evil-mc-make-all-cursors)
+  (evil-leader/set-key "mz" 'evil-mc-undo-all-cursors)
+  (evil-leader/set-key "mn" 'evil-mc-make-and-goto-next-match)
+  (evil-leader/set-key "mp" 'evil-mc-make-and-goto-prev-match)
+  (evil-leader/set-key "mf" 'evil-mc-skip-and-goto-next-match)
+  (evil-leader/set-key "mb" 'evil-mc-skip-and-goto-prev-match)
+  (evil-leader/set-key "mu" 'evil-mc-undo-last-added-cursor)
+#+END_SRC
+
 * Environment
 ** Identation
 I have learned to distrust tabs in my source code, so let’s make sure
@@ -182,6 +200,47 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
     :hook (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 
+*** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-items '((recents . 10)))
+    (setq dashboard-banner-logo-title "Yo, me"))
+#+END_SRC
+
+*** Avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :init (setq avy-background t)
+    :config
+    (evil-leader/set-key "SPC" 'avy-goto-char))
+#+END_SRC
+
+*** Spaceline / Powerline
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package powerline
+  ;;   :init (powerline-default-theme))
+
+  (use-package spaceline
+    :config
+    (require 'spaceline-config)
+    (setq powerline-default-separator (quote arrow))
+    (spaceline-spacemacs-theme))
+#+END_SRC
+
+**** Diminish
+hide some major modes in spaceline
+#+BEGIN_SRC emacs-lisp
+  (use-package diminish
+    :init
+    (diminish 'projectile-mode)
+    (diminish 'subword-mode)
+    (diminish 'rainbow-mode)
+    (diminish 'evil-mc-mode)
+    (diminish 'undo-tree-mode))
+#+END_SRC
+
 ** Display settings
 #+BEGIN_SRC emacs-lisp
   ;; Splash Screen
@@ -275,6 +334,7 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
   ;;   (setq auto-package-update-hide-results t)
   ;;   (auto-package-update-maybe))
 #+END_SRC
+
 * ORG
 ** main settings
 #+BEGIN_SRC emacs-lisp
@@ -388,12 +448,25 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
   (add-to-list 'org-structure-template-alist
 	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
 #+END_SRC
-* Magit
+* Markdown
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
+  (use-package markdown-mode
+    :ensure t
+    :mode (("README\\.md\\'" . gfm-mode)
+	   ("\\.md\\'" . markdown-mode)
+	   ("\\.markdown\\'" . markdown-mode))
     :init
-    (evil-leader/set-key "gi" 'magit-init)
-    (evil-leader/set-key "gs" 'magit-status))
+    ;; use a custom css file to make it a little prettier
+    (setq markdown-css-paths `(expand-file-name "markdown.css" sads/vendor-dir))
+    ;; generate HTML previews from within the mode
+    ;; (setq markdown-command "pandoc --smart -f markdown -t html"))
+    (setq markdown-command "markdown"))
+
+  ;; prev. settings
+  ;; (add-hook 'markdown-mode-hook
+  ;; 	  (lambda ()
+  ;; 	    (visual-line-mode t)
+  ;; 	    (flyspell-mode t)))
 #+END_SRC
 * IVY | [[https://oremacs.com/swiper/][manual]]
   ido | helm | ivy -- 3 different ways
@@ -424,24 +497,6 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
 
   ;; don't know for what is setting below
   ;; (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
-#+END_SRC
-
-* Evil Multiple-Cursors | [[https://github.com/gabesoft/evil-mc][github]]
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-mc
-    :init
-    (global-evil-mc-mode 1)
-    (evil-define-key 'visual evil-mc-key-map
-      "A" #'evil-mc-make-cursor-in-visual-selection-end
-      "I" #'evil-mc-make-cursor-in-visual-selection-beg))
-
-  (evil-leader/set-key "ma" 'evil-mc-make-all-cursors)
-  (evil-leader/set-key "mz" 'evil-mc-undo-all-cursors)
-  (evil-leader/set-key "mn" 'evil-mc-make-and-goto-next-match)
-  (evil-leader/set-key "mp" 'evil-mc-make-and-goto-prev-match)
-  (evil-leader/set-key "mf" 'evil-mc-skip-and-goto-next-match)
-  (evil-leader/set-key "mb" 'evil-mc-skip-and-goto-prev-match)
-  (evil-leader/set-key "mu" 'evil-mc-undo-last-added-cursor)
 #+END_SRC
 
 * Projectile | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]]
@@ -476,71 +531,6 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
       "Git fetch."
       (magit-status)
       (call-interactively #'magit-fetch-current)))
-#+END_SRC
-
-* Perspective | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][source]]
-My workflow consists of:
-- C-x x P to investigate a new project with its new perspective (this
-also saves off whatever I was doing)
-- C-x x x switches to whatever I was doing before
-- C-x x s switches to a project’s perspective based on its name
-
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package perspective
-  ;;   :ensure t
-  ;;   :bind ("C-x x x" . persp-switch-last)
-  ;;   :init (persp-mode +1)
-
-  ;;   (use-package persp-projectile
-  ;;     :ensure t
-  ;;     :bind ("C-x x P" . projectile-persp-switch-project))
-
-  ;;   :config
-  ;;     (persp-turn-off-modestring))
-#+END_SRC
-
-* Markdown-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package markdown-mode
-    :ensure t
-    :mode (("README\\.md\\'" . gfm-mode)
-	   ("\\.md\\'" . markdown-mode)
-	   ("\\.markdown\\'" . markdown-mode))
-    :init
-    ;; use a custom css file to make it a little prettier
-    (setq markdown-css-paths `(expand-file-name "markdown.css" sads/vendor-dir))
-    ;; generate HTML previews from within the mode
-    ;; (setq markdown-command "pandoc --smart -f markdown -t html"))
-    (setq markdown-command "markdown"))
-
-  ;; prev. settings
-  ;; (add-hook 'markdown-mode-hook
-  ;; 	  (lambda ()
-  ;; 	    (visual-line-mode t)
-  ;; 	    (flyspell-mode t)))
-#+END_SRC
-* Spaceline / Powerline
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package powerline
-  ;;   :init (powerline-default-theme))
-
-  (use-package spaceline
-    :config
-    (require 'spaceline-config)
-    (setq powerline-default-separator (quote arrow))
-    (spaceline-spacemacs-theme))
-#+END_SRC
-
-** Diminish
-hide some major modes in spaceline
-#+BEGIN_SRC emacs-lisp
-  (use-package diminish
-    :init
-    (diminish 'projectile-mode)
-    (diminish 'subword-mode)
-    (diminish 'rainbow-mode)
-    (diminish 'evil-mc-mode)
-    (diminish 'undo-tree-mode))
 #+END_SRC
 
 * Company
@@ -597,14 +587,6 @@ alternative - 'Ace-window'
     ([remap other-window] . switch-window))
 #+END_SRC
 
-* Dashboard
-#+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :config
-    (dashboard-setup-startup-hook)
-    (setq dashboard-items '((recents . 10)))
-    (setq dashboard-banner-logo-title "Yo, me"))
-#+END_SRC
 * Dmenu
 ~<leader> t~ - runs small terminal for launching applications (run and type 'discord')
 #+BEGIN_SRC emacs-lisp
@@ -619,15 +601,6 @@ alternative - 'Ace-window'
   (use-package popup-kill-ring
     :bind ("M-y" . popup-kill-ring))
 #+END_SRC
-* Yasnippet
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
-    :config
-    (use-package yasnippet-snippets)
-    (yas-reload-all) ;; ur custom snippets won't work untill u run this
-    (add-hook 'prog-mode-hook #'yas-minor-mode))
-#+END_SRC
-
 * Wrap-region | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]]
 #+BEGIN_SRC emacs-lisp
   (use-package wrap-region
@@ -658,6 +631,12 @@ alternative - 'Ace-window'
        ))
     :diminish wrap-region-mode)
 #+END_SRC
+* Sudo-edit
+#+BEGIN_SRC emacs-lisp
+  (use-package sudo-edit
+    :bind ("s-f" . sudo-edit))
+#+END_SRC
+
 * Workgroups | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#workgroups][source]]
 Periodically check [[https://github.com/pashinin/workgroups2][workgroups2]]
 
@@ -665,50 +644,10 @@ Periodically check [[https://github.com/pashinin/workgroups2][workgroups2]]
   ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
   ;; (evil-leader/set-key "cr" 'jump-to-register)
 #+END_SRC
-* js2-mode | [[https://github.com/mooz/js2-mode][github]]
-Improved JavaScript editing mode for GNU Emacs
-
-#+BEGIN_SRC emacs-lisp
-  (use-package js2-mode
-    :ensure t
-    :config
-    (setq js2-strict-missing-semi-warning nil)
-    (setq js2-missing-semi-one-line-override t)
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-    (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
-    (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode)))
-#+END_SRC
 
 
-* Avy
-#+BEGIN_SRC emacs-lisp
-  (use-package avy
-    :init (setq avy-background t)
-    :config
-    (evil-leader/set-key "SPC" 'avy-goto-char))
-#+END_SRC
-* Flycheck | [[https://www.flycheck.org/en/latest/][guide]]
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :init
-    (global-flycheck-mode)
-    (evil-leader/set-key "fb" 'flycheck-buffer)
-    (evil-leader/set-key "fc" 'flycheck-clear)
-    (evil-leader/set-key "fn" 'flycheck-next-error)
-    (evil-leader/set-key "fp" 'flycheck-previous-error)
-    (evil-leader/set-key "fs" 'flycheck-list-errors)
-    )
-#+END_SRC
-
-* Emmet-mode | [[https://github.com/smihica/emmet-mode][github]]
-#+BEGIN_SRC emacs-lisp
-  (use-package emmet-mode
-    :hook (sgml-mode-hook css-mode-hook)
-    :init
-    (setq emmet-move-cursor-between-quotes t))
-#+END_SRC
-* Web-mode | [[web-mode.org][documentation]]
+* Development
+** Web-mode | [[web-mode.org][documentation]]
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :defer t
@@ -750,7 +689,62 @@ Improved JavaScript editing mode for GNU Emacs
     )
 #+END_SRC
 
-* G[g]tags | [[https://github.com/leoliu/ggtags][github]]
+** js2-mode | [[https://github.com/mooz/js2-mode][github]]
+Improved JavaScript editing mode for GNU Emacs
+
+#+BEGIN_SRC emacs-lisp
+  (use-package js2-mode
+    :ensure t
+    :config
+    (setq js2-strict-missing-semi-warning nil)
+    (setq js2-missing-semi-one-line-override t)
+    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+    (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode)))
+#+END_SRC
+
+** Yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :config
+    (use-package yasnippet-snippets)
+    (yas-reload-all) ;; ur custom snippets won't work untill u run this
+    (add-hook 'prog-mode-hook #'yas-minor-mode))
+#+END_SRC
+
+** Flycheck | [[https://www.flycheck.org/en/latest/][guide]]
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :init
+    (global-flycheck-mode)
+    (evil-leader/set-key "fb" 'flycheck-buffer)
+    (evil-leader/set-key "fc" 'flycheck-clear)
+    (evil-leader/set-key "fn" 'flycheck-next-error)
+    (evil-leader/set-key "fp" 'flycheck-previous-error)
+    (evil-leader/set-key "fs" 'flycheck-list-errors)
+    )
+#+END_SRC
+
+** Emmet-mode | [[https://github.com/smihica/emmet-mode][github]]
+#+BEGIN_SRC emacs-lisp
+  (use-package emmet-mode
+    :hook (sgml-mode-hook css-mode-hook)
+    :init
+    (setq emmet-move-cursor-between-quotes t))
+#+END_SRC
+
+** Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :init
+    (evil-leader/set-key "gi" 'magit-init)
+    (evil-leader/set-key "gs" 'magit-status))
+#+END_SRC
+
+
+* Set up -->
+** G[g]tags | [[https://github.com/leoliu/ggtags][github]]
 #+BEGIN_SRC emacs-lisp
   ;; == trying to make ggtags work ==
   ;; (use-package ggtags
@@ -799,10 +793,25 @@ Improved JavaScript editing mode for GNU Emacs
   ;;     (bpr-spawn "global -uv"))))
 #+END_SRC
 
-* Sudo-edit
+** Perspective | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#perspective][source]]
+My workflow consists of:
+- C-x x P to investigate a new project with its new perspective (this
+also saves off whatever I was doing)
+- C-x x x switches to whatever I was doing before
+- C-x x s switches to a project’s perspective based on its name
+
 #+BEGIN_SRC emacs-lisp
-  (use-package sudo-edit
-    :bind ("s-f" . sudo-edit))
+  ;; (use-package perspective
+  ;;   :ensure t
+  ;;   :bind ("C-x x x" . persp-switch-last)
+  ;;   :init (persp-mode +1)
+
+  ;;   (use-package persp-projectile
+  ;;     :ensure t
+  ;;     :bind ("C-x x P" . projectile-persp-switch-project))
+
+  ;;   :config
+  ;;     (persp-turn-off-modestring))
 #+END_SRC
 
 
