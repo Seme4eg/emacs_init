@@ -40,13 +40,14 @@ Automatically install certain packages, as well as the ease of lazily loading th
       "A" #'evil-mc-make-cursor-in-visual-selection-end
       "I" #'evil-mc-make-cursor-in-visual-selection-beg))
 
-  (evil-leader/set-key "ma" 'evil-mc-make-all-cursors)
-  (evil-leader/set-key "mz" 'evil-mc-undo-all-cursors)
-  (evil-leader/set-key "mn" 'evil-mc-make-and-goto-next-match)
-  (evil-leader/set-key "mp" 'evil-mc-make-and-goto-prev-match)
-  (evil-leader/set-key "mf" 'evil-mc-skip-and-goto-next-match)
-  (evil-leader/set-key "mb" 'evil-mc-skip-and-goto-prev-match)
-  (evil-leader/set-key "mu" 'evil-mc-undo-last-added-cursor)
+  (evil-leader/set-key
+    "ma" 'evil-mc-make-all-cursors
+    "mz" 'evil-mc-undo-all-cursors
+    "mn" 'evil-mc-make-and-goto-next-match
+    "mp" 'evil-mc-make-and-goto-prev-match
+    "mf" 'evil-mc-skip-and-goto-next-match
+    "mb" 'evil-mc-skip-and-goto-prev-match
+    "mu" 'evil-mc-undo-last-added-cursor)
 #+END_SRC
 
 * Environment
@@ -155,10 +156,12 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (setq ibuffer-expert t)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (evil-leader/set-key "w" 'save-buffer)
-  (evil-leader/set-key "bd" 'kill-buffer)
-  (evil-leader/set-key "bm" 'ibuffer)
-  (evil-leader/set-key "bo" 'switch-to-buffer)
+  (evil-leader/set-key
+    "w" 'save-buffer
+    "bd" 'kill-buffer
+    "bm" 'ibuffer
+    "bo" 'switch-to-buffer)
+
   (global-set-key (kbd "C-c p") 'mode-line-other-buffer)
 #+END_SRC
 
@@ -303,6 +306,17 @@ hide some major modes in spaceline
   (setq dired-dwim-target t)
   (put 'dired-find-alternate-file 'disabled nil)
 
+  (use-package find-dired
+     :init (setq find-ls-option '("-print0 | xargs -0 ls -od" . "-od")))
+  ;; (setq find-ls-option '("-print0 | xargs -0 ls -ld" . "-ld")) -- ld / od??
+
+  (use-package peep-dired
+    :defer t ; don't access `dired-mode-map' until `peep-dired' is loaded
+    :bind (:map dired-mode-map
+                ("P" . peep-dired)))
+
+  ;; ---
+
   (require 'dired-x)
   (setq dired-omit-files "^\\.?#\\|^\\.[^.].*")
 
@@ -310,11 +324,11 @@ hide some major modes in spaceline
     "Open dired to the current buffer's dir, or $HOME."
     (interactive)
     (let ((cwd (or (file-name-directory (or (buffer-file-name) ""))
-		   (expand-file-name "~"))))
+                   (expand-file-name "~"))))
       (dired cwd)))
 
   (add-hook 'dired-mode-hook (lambda ()
-			       (dired-omit-mode t)))
+                               (dired-omit-mode t)))
 
   (eval-after-load 'wdired
     (add-hook 'wdired-mode-hook 'evil-normal-state))
@@ -341,9 +355,6 @@ hide some major modes in spaceline
   (use-package org
 
     :init
-    ;; kbd
-    (evil-leader/set-key "oc" 'org-capture)
-    (evil-leader/set-key "oa" 'org-agenda)
     ;; (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
     (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
 
@@ -403,8 +414,9 @@ hide some major modes in spaceline
   (setq org-agenda-files (quote ("~/Desktop/todo.org"))) ;; dunno if it's gonna work
 
   ;; keybindings
-  (evil-leader/set-key "oc" 'org-capture)
-  (evil-leader/set-key "oa" 'org-agenda)
+  (evil-leader/set-key
+    "oc" 'org-capture
+    "oa" 'org-agenda)
 
   ;;set priority range from A to C with default A
   (setq org-highest-priority ?A)
@@ -413,15 +425,15 @@ hide some major modes in spaceline
 
   ;;set colours for priorities
   (setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
-			     (?B . (:foreground "LightSteelBlue"))
-			     (?C . (:foreground "OliveDrab"))))
+                             (?B . (:foreground "LightSteelBlue"))
+                             (?C . (:foreground "OliveDrab"))))
 
   ;;open agenda in current window
   (setq org-agenda-window-setup (quote current-window))
 
   (setq org-capture-templates
-	'(("t" "todo" entry (file+headline "~/Desktop/todo.org" "Tasks")
-	   "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
+        '(("t" "todo" entry (file+headline "~/Desktop/todo.org" "Tasks")
+           "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
 
   ;; org-mode agenda options
 
@@ -469,7 +481,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
   ;; 	    (flyspell-mode t)))
 #+END_SRC
 * IVY | [[https://oremacs.com/swiper/][manual]]
-  ido | helm | ivy -- 3 different ways
+  [[https://www.masteringemacs.org/article/introduction-to-ido-mode][ido]] | helm | ivy -- 3 different ways
 ** IVY enable
 [[https://github.com/abo-abo/swiper#counsel][counsel setup]]
 #+BEGIN_SRC emacs-lisp
@@ -479,7 +491,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (ivy-mode 1)
     (counsel-mode 1)
     :bind
-    ("C-s" . swiper-isearch)
+    ("C-s" . swiper)
     :init
     (setq ivy-use-virtual-buffers t)
     ;; (setq ivy-count-format "(%d/%d) ")
@@ -649,6 +661,9 @@ also saves off whatever I was doing)
 #+BEGIN_SRC emacs-lisp
   (use-package perspective
     :demand t
+    :init
+    (setq presp-keymap-prefix (kbd ", c"))
+    (customize-set-variable 'wg-prefix-key (kbd ", c"))
     :bind ("C-x x x" . persp-switch-last)
     :config
     (use-package persp-projectile
@@ -662,17 +677,28 @@ also saves off whatever I was doing)
     (persp-mode 1)
     (persp-turn-off-modestring)
     (define-key evil-normal-state-map (kbd "gt") 'persp-next)
-    (define-key evil-normal-state-map (kbd "gT") 'persp-prev)
-    ;; dunno what's the purpose of code below..
-    (with-eval-after-load "term"
-      (persp-def-auto-persp "term"
-                            :parameters '((dont-save-to-file . t))
-                            :mode 'term-mode
-                            :dyn-env '(after-switch-to-buffer-functions ;; prevent recursion
-                                       (persp-add-buffer-on-find-file nil)
-                                       persp-add-buffer-on-after-change-major-mode)
-                            :hooks '(after-switch-to-buffer-functions)
-                            :switch 'window)))
+    (define-key evil-normal-state-map (kbd "gT") 'persp-prev))
+#+END_SRC
+
+** Workgroups | [[https://github.com/pashinin/workgroups2][workgroups2]]
+#+BEGIN_SRC emacs-lisp
+  ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
+  ;; (evil-leader/set-key "cr" 'jump-to-register)
+
+  (use-package workgroups2
+    :diminish workgroups-mode
+    :init
+    (setq wg-prefix-key (kbd "C-c a")
+          wg-session-file "~/.emacs.d/workgroups2"
+          wg-mode-line-display-on nil
+          ;; What to do on Emacs exit / workgroups-mode exit?
+          wg-emacs-exit-save-behavior           'save      ; Options: 'save 'ask nil
+          wg-workgroups-mode-exit-save-behavior 'save)
+    (evil-leader/set-key
+      "cr" 'wg-reload-session
+      "cp" 'wg-switch-to-previous-workgroup)
+
+    (workgroups-mode 1))
 #+END_SRC
 
 
@@ -748,11 +774,12 @@ Improved JavaScript editing mode for GNU Emacs
   (use-package flycheck
     :init
     (global-flycheck-mode)
-    (evil-leader/set-key "fb" 'flycheck-buffer)
-    (evil-leader/set-key "fc" 'flycheck-clear)
-    (evil-leader/set-key "fn" 'flycheck-next-error)
-    (evil-leader/set-key "fp" 'flycheck-previous-error)
-    (evil-leader/set-key "fs" 'flycheck-list-errors)
+    (evil-leader/set-key
+      "fb" 'flycheck-buffer
+      "fc" 'flycheck-clear
+      "fn" 'flycheck-next-error
+      "fp" 'flycheck-previous-error
+      "fs" 'flycheck-list-errors)
     )
 #+END_SRC
 
@@ -768,8 +795,9 @@ Improved JavaScript editing mode for GNU Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :init
-    (evil-leader/set-key "gi" 'magit-init)
-    (evil-leader/set-key "gs" 'magit-status))
+    (evil-leader/set-key
+      "gi" 'magit-init
+      "gs" 'magit-status))
 #+END_SRC
 
 
@@ -862,13 +890,12 @@ Improved JavaScript editing mode for GNU Emacs
   ;;
 #+END_SRC
 
-
-** Workgroups | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#workgroups][source]]
-Periodically check [[https://github.com/pashinin/workgroups2][workgroups2]]
-
+** ag frontend
 #+BEGIN_SRC emacs-lisp
-  ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
-  ;; (evil-leader/set-key "cr" 'jump-to-register)
+  ;; (use-package ag
+  ;;   :commands  ag
+  ;;   :init      (setq ag-highlight-search t)
+  ;;   :config    (add-to-list 'ag-arguments "--word-regexp"))
 #+END_SRC
 
 
