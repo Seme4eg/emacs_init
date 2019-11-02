@@ -484,6 +484,8 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
   [[https://www.masteringemacs.org/article/introduction-to-ido-mode][ido]] | helm | ivy -- 3 different ways
 ** IVY enable
 [[https://github.com/abo-abo/swiper#counsel][counsel setup]]
+M-o (ivy-dispatching-done) presents available actions for selection, calls it after selection, and then exits.
+C-M-o (ivy-dispatching-call) presents available actions for selection, calls it after selection, and then does not exit.
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :config
@@ -500,6 +502,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
     (setq ivy-re-builders-alist
           '((t . ivy--regex-fuzzy))))
 #+END_SRC
+
 ** Smex
 *Package to get completion in ~M-x~ menu (and most used commands will be at top)*
 #+BEGIN_SRC emacs-lisp
@@ -549,11 +552,12 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
 [[https://github.com/company-mode/company-mode/issues/68#issuecomment-36208504][company vs auto-complete]]
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :defer t
+  (use-package company :defer t
     :init
+    (setq company-idle-delay 0.3
+          company-dabbrev-ignore-case t
+          company-selection-wrap-around t)
     (global-company-mode)
-
     :config
     (defun org-keyword-backend (command &optional arg &rest ignored)
       "Company backend for org keywords.
@@ -561,21 +565,19 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
   `company-backends', which see."
       (interactive (list 'interactive))
       (cl-case command
-	(interactive (company-begin-backend 'org-keyword-backend))
-	(prefix (and (eq major-mode 'org-mode)
-		     (let ((p (company-grab-line "^#\\+\\(\\w*\\)" 1)))
-		       (if p (cons p t)))))
-	(candidates (mapcar #'upcase
-			    (cl-remove-if-not
-			     (lambda (c) (string-prefix-p arg c))
-			     (pcomplete-completions))))
-	(ignore-case t)
-	(duplicates t)))
+        (interactive (company-begin-backend 'org-keyword-backend))
+        (prefix (and (eq major-mode 'org-mode)
+                     (let ((p (company-grab-line "^#\\+\\(\\w*\\)" 1)))
+                       (if p (cons p t)))))
+        (candidates (mapcar #'upcase
+                            (cl-remove-if-not
+                             (lambda (c) (string-prefix-p arg c))
+                             (pcomplete-completions))))
+        (ignore-case t)
+        (duplicates t)))
     (add-to-list 'company-backends 'org-keyword-backend)
 
     (set (make-local-variable 'company-backends) '(company-css company-web-html company-yasnippet company-files))
-    (setq company-idle-delay 0.4)
-    (setq company-selection-wrap-around t)
     (define-key company-active-map (kbd "ESC") 'company-abort)
     (define-key company-active-map [tab] 'company-complete-common-or-cycle)
     (define-key company-active-map (kbd "C-n") 'company-select-next)
@@ -656,49 +658,28 @@ also saves off whatever I was doing)
 - C-x x x switches to whatever I was doing before
 - C-x x s switches to a project’s perspective based on its name
 
-  [[https://www.reddit.com/r/emacs/comments/d66s8r/how_to_get_the_most_from_perspectiveel/][adding predefined "layout"]] (+ source of code below)
+in order to use persp-switch-project and see only project buffers in 'switch-buffer' menu install back ido
+from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a62839560766c5][this commit]] and bind ',bp' to 'ido-switch-buffer' ([[https://github.com/bbatsov/persp-projectile][link]])
 
 #+BEGIN_SRC emacs-lisp
-  (use-package perspective
-    :demand t
-    :init
-    (setq presp-keymap-prefix (kbd ", c"))
-    (customize-set-variable 'wg-prefix-key (kbd ", c"))
-    :bind ("C-x x x" . persp-switch-last)
-    :config
-    (use-package persp-projectile
-      :bind ("C-x x P" . projectile-persp-switch-project))
-    (setq persp-auto-resume-time -1 ;; No autoload buffers
-          persp-set-last-persp-for-new-frames nil
-          persp-reset-windows-on-nil-window-conf t
-          persp-autokill-buffer-on-remove t
-          persp-add-buffer-on-after-change-major-mode t
-          persp-kill-foreign-buffer-behaviour 'kill)
-    (persp-mode 1)
-    (persp-turn-off-modestring)
-    (define-key evil-normal-state-map (kbd "gt") 'persp-next)
-    (define-key evil-normal-state-map (kbd "gT") 'persp-prev))
-#+END_SRC
-
-** Workgroups | [[https://github.com/pashinin/workgroups2][workgroups2]]
-#+BEGIN_SRC emacs-lisp
+  ;; this might once come handy
   ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
   ;; (evil-leader/set-key "cr" 'jump-to-register)
 
-  (use-package workgroups2
-    :diminish workgroups-mode
+  (use-package perspective
+    :demand t
     :init
-    (setq wg-prefix-key (kbd "C-c a")
-          wg-session-file "~/.emacs.d/workgroups2"
-          wg-mode-line-display-on nil
-          ;; What to do on Emacs exit / workgroups-mode exit?
-          wg-emacs-exit-save-behavior           'save      ; Options: 'save 'ask nil
-          wg-workgroups-mode-exit-save-behavior 'save)
-    (evil-leader/set-key
-      "cr" 'wg-reload-session
-      "cp" 'wg-switch-to-previous-workgroup)
-
-    (workgroups-mode 1))
+    (define-key evil-normal-state-map (kbd ",z") 'perspective-map)
+    (persp-mode 1)
+    (use-package persp-projectile
+      :init (define-key evil-normal-state-map (kbd ",zP") 'projectile-persp-switch-project))
+    :config
+    (setq persp-state-default-file "~/.emacs.d/perspectives")
+    (add-hook 'kill-emacs-hook #'persp-state-save)
+    (define-key perspective-map (kbd "l") 'persp-state-load)
+    (define-key perspective-map (kbd "x") 'persp-switch-last)
+    (define-key evil-normal-state-map (kbd "gt") 'persp-next)
+    (define-key evil-normal-state-map (kbd "gT") 'persp-prev))
 #+END_SRC
 
 
@@ -770,10 +751,14 @@ Improved JavaScript editing mode for GNU Emacs
 #+END_SRC
 
 ** Flycheck | [[https://www.flycheck.org/en/latest/][guide]]
+check also [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#spell-checking][this]] setup later
 #+BEGIN_SRC emacs-lisp
+  ;; 'npm install eslint' for flycheck to support syntax checking for jt
   (use-package flycheck
+    :diminish flyspell-mode
     :init
-    (global-flycheck-mode)
+    ;; (global-flycheck-mode)
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
     (evil-leader/set-key
       "fb" 'flycheck-buffer
       "fc" 'flycheck-clear
