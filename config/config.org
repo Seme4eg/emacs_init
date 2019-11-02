@@ -64,9 +64,10 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   ;; Make tab key do indent first then completion.
   (setq-default tab-always-indent 'complete)
 #+END_SRC
+
 ** Major settings
 #+BEGIN_SRC emacs-lisp
-  (setq fill-column 80)
+  (setq fill-column 110)
 
   (setq x-select-enable-clipboard t)
   (desktop-save-mode 1) ;; automatically save/restore sessions
@@ -81,8 +82,8 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
   ;; Misc
   (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
-          use-dialog-box nil ;; use the echo area instead of dialog boxes
-          visible-bell t) ;; Use a visual indicator instead of making horrible noises
+        use-dialog-box nil ;; use the echo area instead of dialog boxes
+        visible-bell t) ;; Use a visual indicator instead of making horrible noises
 
   ;; Vendor directory (for manually installed packages)
   (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
@@ -105,6 +106,25 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (use-package s :ensure t)
   (use-package f :ensure t)
 #+END_SRC
+** Hooks
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'before-save-hook 'delete-trailing-whitespace) ;; always strip trailing whitespace
+
+  ;; === linum and fringe ===
+  (add-hook 'prog-mode-hook 'linum-mode)
+  ;; (global-linum-mode 1)
+  (add-hook 'prog-mode-hook 'fringe-mode '(8 . 0)) ;; dunno if that'll work
+  (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 110))) ;; dunno what it does
+
+  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer) ;; dunno if i need it
+  (add-hook 'markdown-mode-hook 'auto-fill-mode)
+
+  ;; Various keywords (in comments) are now flagged in a Red Error font
+  (add-hook 'prog-common-hook
+            (lambda ()
+              (font-lock-add-keywords nil
+                                      '(("\\<\\(FIX\\|FIXME\\|TODO\\|BUG\\|HACK\\):" 1 font-lock-warning-face t)))))
+#+END_SRC
 ** Modes
 #+BEGIN_SRC emacs-lisp
   ;; marking text
@@ -113,9 +133,11 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
   (global-prettify-symbols-mode t) ;; type 'lambda' to understand
 
+  (save-place-mode 1)
+  (setq save-place-forget-unreadable-files t
+
   ;; to be able to move in camelCase
   (global-subword-mode 1)
-  (global-linum-mode 1)
 
   ;; make electric-pair-mode work on more brackets
   ;; disabled function below cuz it inserts '' even in "don't'" words..
@@ -125,10 +147,8 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (electric-pair-mode 1) ;; insert pair of () "" [] {}
 
   (global-auto-revert-mode nil)
-  (flyspell-mode nil)
-  (add-hook 'markdown-mode-hook 'auto-fill-mode)
+  ;; (flyspell-mode nil)
 
-  ;; Web
   ;; shell-script-mode
   (add-to-list 'auto-mode-alist '("\\.zsh$" . shell-script-mode))
 
@@ -296,7 +316,6 @@ hide some major modes in spaceline
        (toggle-read-only)
        (ansi-color-apply-on-region (point-min) (point-max))
        (toggle-read-only))
-     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
    #+END_SRC
 
 
@@ -493,7 +512,7 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
     (ivy-mode 1)
     (counsel-mode 1)
     :bind
-    ("C-s" . swiper)
+    ("C-s" . swiper) ;; 'M-r' - toggle fuzzy search in swiper
     :init
     (setq ivy-use-virtual-buffers t)
     ;; (setq ivy-count-format "(%d/%d) ")
@@ -919,26 +938,29 @@ check also [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#spe
   (global-set-key (kbd "C-c r") 'config-reload)
 #+END_SRC
 ** Identation & buffer cleanups
+This re-indents, untabifies, and cleans up whitespace
 #+BEGIN_SRC emacs-lisp
-  ;; This re-indents, untabifies, and cleans up whitespace
+  (defun untabify-buffer ()
+    (interactive)
+    (untabify (point-min) (point-max)))
+
   (defun indent-buffer ()
     (interactive)
     (indent-region (point-min) (point-max)))
 
   (defun cleanup-buffer ()
-    "Delete trailing whitespace if the buffer is in `prog-' or `org-mode'."
-    (if (or (derived-mode-p 'prog-mode)
-	    (derived-mode-p 'org-mode))
-	;; (indent-buffer)
-	(delete-trailing-whitespace)))
-  (add-to-list 'write-file-functions 'cleanup-buffer)
+    "Perform a bunch of operations on the whitespace content of a buffer."
+    (interactive)
+    (indent-buffer)
+    (untabify-buffer))
 
   "Remove tmux artifacts from region."
   (defun cleanup-region (beg end)
     (interactive "r")
     (dolist (re '("\\\\│\·*\n" "\W*│\·*"))
       (replace-regexp re "" nil beg end)))
-  (global-set-key (kbd "C-x M-t") 'cleanup-region)
+
+  (global-set-key (kbd "C-x M-t") 'cleanup-region) ;; make this function autorun when saving 'prog-mode files
 #+END_SRC
 
 ** Window splitting
