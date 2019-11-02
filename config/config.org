@@ -134,7 +134,7 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (global-prettify-symbols-mode t) ;; type 'lambda' to understand
 
   (save-place-mode 1)
-  (setq save-place-forget-unreadable-files t
+  (setq save-place-forget-unreadable-files t)
 
   ;; to be able to move in camelCase
   (global-subword-mode 1)
@@ -621,11 +621,10 @@ alternative - 'Ace-window'
 #+END_SRC
 
 * Dmenu
-~<leader> t~ - runs small terminal for launching applications (run and type 'discord')
+~<leader> d~ - runs small terminal for launching applications (run and type 'discord')
 #+BEGIN_SRC emacs-lisp
   (use-package dmenu
-    :init
-    (evil-leader/set-key "t" 'dmenu))
+    :init (evil-leader/set-key "d" 'dmenu))
 #+END_SRC
 * Popup-kill-ring
 ~M-y~ - get popup with things u previously deleted..
@@ -745,19 +744,75 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
     )
 #+END_SRC
 
-** js2-mode | [[https://github.com/mooz/js2-mode][github]]
+** JS settings
+*** js2-mode | [[https://github.com/mooz/js2-mode][github]]
 Improved JavaScript editing mode for GNU Emacs
 
 #+BEGIN_SRC emacs-lisp
   (use-package js2-mode
-    :ensure t
+    :init
+    (setq js-basic-indent 2)
+    (setq-default js2-basic-indent 2
+                  js2-basic-offset 2
+                  js2-auto-indent-p t
+                  js2-cleanup-whitespace t
+                  js2-enter-indents-newline t
+                  js2-indent-on-enter-key t
+                  js2-global-externs (list "window" "module" "require" "buster" "sinon" "assert" "refute" "setTimeout" "clearTimeout" "setInterval" "clearInterval" "location" "__dirname" "console" "JSON" "jQuery" "$"))
     :config
     (setq js2-strict-missing-semi-warning nil)
     (setq js2-missing-semi-one-line-override t)
-    (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-    (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-    (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
-    (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode)))
+    ;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
+    (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
+    (add-to-list 'auto-mode-alist '("\\.js" . js2-mode)))
+#+END_SRC
+
+*** tern
+The [[https://ternjs.net/doc/manual.html#emacs][Tern]] project is a JavaScript analyzer that can be used to improve the JavaScript integration with editors like Emacs.
+
+First install tern : ~npm i -g tern~ (install globally)
+
+~,tf~ - Jump to the definition of the thing under the cursor.
+~,tp~ - Brings you back to last place you were when you pressed M-..
+~C-c C-r~ - Rename the variable under the cursor.
+~C-c C-c~ - Find the type of the thing under the cursor.
+~C-c C-d~ - Find docs of the thing under the cursor. Press again to open the associated URL (if any).
+#+BEGIN_SRC emacs-lisp
+  (use-package tern
+     :init
+     (add-hook 'js2-mode-hook (lambda () (tern-mode t)))
+     (evil-leader/set-key
+       "th" 'tern-highlight-refs
+       "tf" 'tern-find-definition
+       "tn" 'tern-find-definition-by-name
+       "tp" 'tern-pop-find-definition)
+     :config
+       (use-package company-tern
+          :init (add-to-list 'company-backends 'company-tern)))
+#+END_SRC
+
+*** js2-refactor | [[https://github.com/magnars/js2-refactor.el][github (shortcuts)]]
+#+BEGIN_SRC emacs-lisp
+  (use-package js2-refactor
+    :init
+    (add-hook 'js2-mode-hook #'js2-refactor-mode)
+    :config
+    (js2r-add-keybindings-with-prefix "C-c b")
+    (define-key key-translation-map (kbd ",r") (kbd "C-c b")))
+#+END_SRC
+
+** Skewer | [[https://github.com/skeeto/skewer-mode][github]]
+Kick things off with ~run-skewer~, and then:
+
+~C-x C-e~ - `skewer-eval-last-expression’
+~C-M-x~ - `skewer-eval-defun’
+~C-c C-k~ - `skewer-load-buffer’
+#+BEGIN_SRC emacs-lisp
+  (use-package skewer-mode
+    :init
+    (add-hook 'js2-mode-hook 'skewer-mode)
+    (add-hook 'css-mode-hook 'skewer-css-mode)
+    (add-hook 'html-mode-hook 'skewer-html-mode))
 #+END_SRC
 
 ** Yasnippet
@@ -771,13 +826,22 @@ Improved JavaScript editing mode for GNU Emacs
 
 ** Flycheck | [[https://www.flycheck.org/en/latest/][guide]]
 check also [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#spell-checking][this]] setup later
+
+to use eslint install it: ~npm i -g eslint~
+
 #+BEGIN_SRC emacs-lisp
   ;; 'npm install eslint' for flycheck to support syntax checking for jt
   (use-package flycheck
     :diminish flyspell-mode
     :init
+
     ;; (global-flycheck-mode)
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; for now stick to this variant
+    ;; (add-hook 'prog-mode-hook 'flycheck-mode)
+
+    ;; bing that back! FIX | ERROR
+    ;; (add-hook 'js2-mode-hook
+    ;;           (lambda () (flycheck-select-checker "javascript-eslint")))
     (evil-leader/set-key
       "fb" 'flycheck-buffer
       "fc" 'flycheck-clear
@@ -802,6 +866,12 @@ check also [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#spe
     (evil-leader/set-key
       "gi" 'magit-init
       "gs" 'magit-status))
+#+END_SRC
+
+** color-identifiers-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package color-identifiers-mode
+    :hook prog-mode)
 #+END_SRC
 
 
