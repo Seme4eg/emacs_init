@@ -112,6 +112,7 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
   ;; === linum and fringe ===
   (add-hook 'prog-mode-hook 'linum-mode)
+  (add-hook 'prog-mode-hook 'hs-minor-mode)
   ;; (global-linum-mode 1)
   (add-hook 'prog-mode-hook 'fringe-mode '(8 . 0)) ;; dunno if that'll work
   (add-hook 'linum-mode-hook (lambda () (set-face-attribute 'linum nil :height 110))) ;; dunno what it does
@@ -136,18 +137,9 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (save-place-mode 1)
   (setq save-place-forget-unreadable-files t)
 
-  ;; to be able to move in camelCase
-  (global-subword-mode 1)
-
-  ;; make electric-pair-mode work on more brackets
-  ;; disabled function below cuz it inserts '' even in "don't'" words..
-  ;; (setq electric-pair-pairs
-  ;;       '(
-  ;; 	(?\' . ?\')))
-  (electric-pair-mode 1) ;; insert pair of () "" [] {}
+  (global-subword-mode 1) ;; to be able to move in camelCase
 
   (global-auto-revert-mode nil)
-  ;; (flyspell-mode nil)
 
   ;; shell-script-mode
   (add-to-list 'auto-mode-alist '("\\.zsh$" . shell-script-mode))
@@ -259,6 +251,9 @@ hide some major modes in spaceline
     :init
     (diminish 'projectile-mode)
     (diminish 'subword-mode)
+    (diminish 'counsel-mode)
+    (diminish 'ivy-mode)
+    (diminish 'company-mode)
     (diminish 'rainbow-mode)
     (diminish 'evil-mc-mode)
     (diminish 'undo-tree-mode))
@@ -377,6 +372,7 @@ hide some major modes in spaceline
     ;; (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
     (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
 
+    ;; FIX not working
     :hook ((org-mode-hook . org-indent-mode)
            (org-mode-hook . auto-fill-mode))
 
@@ -633,36 +629,6 @@ alternative - 'Ace-window'
   (use-package popup-kill-ring
     :bind ("M-y" . popup-kill-ring))
 #+END_SRC
-* Wrap-region | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]]
-#+BEGIN_SRC emacs-lisp
-  (use-package wrap-region
-    :config
-    (wrap-region-global-mode t)
-    (wrap-region-add-wrappers
-     '(("(" ")")
-       ("[" "]")
-       ("{" "}")
-       ("<" ">")
-       ("'" "'")
-       ("\"" "\"")
-       ("‘" "’"   "q")
-       ("“" "”"   "Q")
-       ("*" "*"   "b"   org-mode)                 ; bolden
-       ("*" "*"   "*"   org-mode)                 ; bolden
-       ("/" "/"   "i"   org-mode)                 ; italics
-       ("/" "/"   "/"   org-mode)                 ; italics
-       ("~" "~"   "c"   org-mode)                 ; code
-       ("~" "~"   "~"   org-mode)                 ; code
-       ("=" "="   "v"   org-mode)                 ; verbatim
-       ("=" "="   "="   org-mode)                 ; verbatim
-       ("_" "_"   "u" '(org-mode markdown-mode))  ; underline
-       ("**" "**" "b"   markdown-mode)            ; bolden
-       ("*" "*"   "i"   markdown-mode)            ; italics
-       ("`" "`"   "c" '(markdown-mode))           ; code
-       ("`" "'"   "c"   lisp-mode)                ; code
-       ))
-    :diminish wrap-region-mode)
-#+END_SRC
 * Sudo-edit
 #+BEGIN_SRC emacs-lisp
   (use-package sudo-edit
@@ -702,7 +668,8 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
 
 
 * Development
-** Web-mode | [[web-mode.org][documentation]]
+** Web Programming
+*** Web-mode | [[web-mode.org][documentation]]
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :defer t
@@ -751,7 +718,6 @@ Improved JavaScript editing mode for GNU Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package js2-mode
     :init
-    (setq js-basic-indent 2)
     (setq-default js2-basic-indent 2
                   js2-basic-offset 2
                   js2-auto-indent-p t
@@ -764,7 +730,7 @@ Improved JavaScript editing mode for GNU Emacs
     (setq js2-missing-semi-one-line-override t)
     ;; (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . js2-jsx-mode))
     (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
-    (add-to-list 'auto-mode-alist '("\\.js" . js2-mode)))
+    (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode)))
 #+END_SRC
 
 *** tern
@@ -814,6 +780,34 @@ Kick things off with ~run-skewer~, and then:
     (add-hook 'css-mode-hook 'skewer-css-mode)
     (add-hook 'html-mode-hook 'skewer-html-mode))
 #+END_SRC
+
+** color-identifiers-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package color-identifiers-mode
+    :hook prog-mode)
+#+END_SRC
+
+** Smartparents | [[https://github.com/Fuco1/smartparens][github]]
+[[https://github.com/expez/evil-smartparens][evil-smartparents github]] and smartparents [[https://www.youtube.com/watch?v=ykjRUr7FgoI&list=PLP6Xwp2WTft7rAMgVPOTI2OE_PQlKGPy7&feature=plpp_play_all][video tutorial]]
+
+~C-M-Space {key}~ - wrap region (or just try pressing {key} when region is active)
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens
+    :init (add-hook 'prog-mode-hook 'smartparens-mode)
+    (use-package evil-smartparents
+      :init (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
+    (evil-leader/set-key
+      "s(" 'sp-backward-unwrap-sexp ;; unwrap parent expression
+      "s)" 'sp-unwrap-sexp ;; unwrap current expression
+      "su" 'sp-splice-sexp ;; unwrap current expression
+      "s]" 'sp-forward-slurp-sexp ;; [foo bar] baz --> [foo bar baz]
+      "s[" 'sp-forward-barf-sexp ;; [foo bar baz] --> [foo bar] baz
+      "ss" 'sp-transpose-sexp ;; "foo" and "bar" to trade places
+      "sn" 'sp-forward-sexp ;; move to next expression
+      "sp" 'sp-backward-sexp) ;; move to next expression
+    )
+#+END_SRC
+
 
 ** Yasnippet
 #+BEGIN_SRC emacs-lisp
@@ -868,15 +862,12 @@ to use eslint install it: ~npm i -g eslint~
       "gs" 'magit-status))
 #+END_SRC
 
-** color-identifiers-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package color-identifiers-mode
-    :hook prog-mode)
-#+END_SRC
-
 
 * Set up -->
 ** G[g]tags | [[https://github.com/leoliu/ggtags][github]]
+
+[[https://github.com/howardabrams/dot-files/blob/master/emacs.org#tag-support][another option]]
+
 #+BEGIN_SRC emacs-lisp
   ;; == trying to make ggtags work ==
   ;; (use-package ggtags
