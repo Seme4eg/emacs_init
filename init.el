@@ -40,7 +40,7 @@
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
  '(package-selected-packages
    (quote
-    (skewer-mode direx ggtags flx counsel wrap-region js2-mode company avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))
+    (evil-smartparens skewer-mode direx ggtags flx counsel wrap-region js2-mode company avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))
  '(uniquify-buffer-name-style (quote post-forward) nil (uniquify)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

@@ -245,7 +245,7 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
 #+END_SRC
 
 **** Diminish
-hide some major modes in spaceline
+hide some modes in spaceline
 #+BEGIN_SRC emacs-lisp
   (use-package diminish
     :init
@@ -253,10 +253,11 @@ hide some major modes in spaceline
     (diminish 'subword-mode)
     (diminish 'counsel-mode)
     (diminish 'ivy-mode)
+    (diminish 'abbrev-mode)
     (diminish 'company-mode)
     (diminish 'rainbow-mode)
-    (diminish 'evil-mc-mode)
-    (diminish 'undo-tree-mode))
+    ;; (diminish 'undo-tree-mode)
+    (diminish 'evil-mc-mode))
 #+END_SRC
 
 ** Display settings
@@ -364,28 +365,36 @@ hide some major modes in spaceline
 #+END_SRC
 
 * ORG
+[[https://github.com/howardabrams/dot-files/blob/master/emacs-org.org#journaling][continue..]]
 ** main settings
 #+BEGIN_SRC emacs-lisp
   (use-package org
-
     :init
-    ;; (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
-    (add-hook 'org-mode-hook (lambda () (abbrev-mode 1)))
+    (setq org-log-done t ;; enable logging when tasks are complete
+          org-list-description-max-indent 5
+          ;; open code edit buffers in the same window
+          org-src-window-setup 'current-window
+          org-adapt-indentation nil ;; prevent demoting heading also shifting text inside sections
+          org-src-fontify-natively t ;; Pretty code blocks
 
-    ;; FIX not working
-    :hook ((org-mode-hook . org-indent-mode)
-           (org-mode-hook . auto-fill-mode))
+          org-use-speed-commands t
+          org-return-follows-link t
+          org-hide-emphasis-markers t
+          org-outline-path-complete-in-steps nil
+          org-src-tab-acts-natively t
 
-    :config
-    (setq org-list-description-max-indent 5)
-    ;; prevent demoting heading also shifting text inside sections
-    (setq org-adapt-indentation nil)
-    ;; open code edit buffers in the same window
-    (setq org-src-window-setup 'current-window)
-    ;; enable logging when tasks are complete
-    (setq org-log-done t
+          org-confirm-babel-evaluate nil
           org-todo-keywords '((sequence "TODO" "INPROGRESS" "DONE"))
           org-todo-keyword-faces '(("INPROGRESS" . (:foreground "blue" :weight bold))))
+
+    :hook ((org-mode . org-indent-mode)
+           (org-mode . abbrev-mode)
+           ;; (org-mode . flyspell-mode) ;; (add-hook 'org-mode-hook (lambda () (flyspell-mode)))
+           (org-mode . auto-fill-mode))
+
+    :config
+    (use-package org-bullets
+      :hook (org-mode . org-bullets-mode))
 
     ;; handling errors
     :catch (lambda (keyword err)
@@ -393,35 +402,18 @@ hide some major modes in spaceline
 
   ;; there is also *org-agenda* and *org-habit* setup in this tut, but i skipped it for now
 #+END_SRC
-** visual settings
-#+BEGIN_SRC emacs-lisp
-  ;; bullets instead of asteric
-  (use-package org-bullets
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
 
-  (setq org-src-fontify-natively t) ;;syntax highlight code blocks
-#+END_SRC
 ** org-babel
+embedd languages inside .org files with proper font-locking
+Allows to extract and execute code.
 #+BEGIN_SRC emacs-lisp
   ;; (require 'ob) ;; don't know what for is this line
 
-  ;; embedd languages inside .org files with proper font-locking
-  ;; Allows to extract and execute code.
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((shell . t)
      (js . t)
      (C . t)))
-
-  ;; (setq org-confirm-babel-evaluate nil)
-  ;;
-  ;; (add-hook 'org-babel-after-execute-hook (lambda ()
-  ;;                                           (condition-case nil
-  ;;                                               (org-display-inline-images)
-  ;;                                             (error nil)))
-  ;;           'append)
-
 #+END_SRC
 
 ** agenda/todo setup
@@ -668,8 +660,7 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
 
 
 * Development
-** Web Programming
-*** Web-mode | [[web-mode.org][documentation]]
+** Web-mode | [[web-mode.org][documentation]]
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
     :defer t
@@ -794,8 +785,8 @@ Kick things off with ~run-skewer~, and then:
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens
     :init (add-hook 'prog-mode-hook 'smartparens-mode)
-    (use-package evil-smartparents
-      :init (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
+    ;; (use-package evil-smartparents
+    ;;   :init (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
     (evil-leader/set-key
       "s(" 'sp-backward-unwrap-sexp ;; unwrap parent expression
       "s)" 'sp-unwrap-sexp ;; unwrap current expression
@@ -806,16 +797,6 @@ Kick things off with ~run-skewer~, and then:
       "sn" 'sp-forward-sexp ;; move to next expression
       "sp" 'sp-backward-sexp) ;; move to next expression
     )
-#+END_SRC
-
-
-** Yasnippet
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
-    :config
-    (use-package yasnippet-snippets)
-    (yas-reload-all) ;; ur custom snippets won't work untill u run this
-    (add-hook 'prog-mode-hook #'yas-minor-mode))
 #+END_SRC
 
 ** Flycheck | [[https://www.flycheck.org/en/latest/][guide]]
@@ -833,7 +814,7 @@ to use eslint install it: ~npm i -g eslint~
     (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; for now stick to this variant
     ;; (add-hook 'prog-mode-hook 'flycheck-mode)
 
-    ;; bing that back! FIX | ERROR
+    ;; FIX
     ;; (add-hook 'js2-mode-hook
     ;;           (lambda () (flycheck-select-checker "javascript-eslint")))
     (evil-leader/set-key
@@ -848,9 +829,12 @@ to use eslint install it: ~npm i -g eslint~
 ** Emmet-mode | [[https://github.com/smihica/emmet-mode][github]]
 #+BEGIN_SRC emacs-lisp
   (use-package emmet-mode
-    :hook (sgml-mode-hook css-mode-hook)
+    :hook (sgml-mode css-mode)
+    :commands emmet-mode
     :init
-    (setq emmet-move-cursor-between-quotes t))
+    (setq
+     emmet-indentation 2
+     emmet-move-cursor-between-quotes t))
 #+END_SRC
 
 ** Magit
@@ -860,6 +844,15 @@ to use eslint install it: ~npm i -g eslint~
     (evil-leader/set-key
       "gi" 'magit-init
       "gs" 'magit-status))
+#+END_SRC
+
+** Yasnippet
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :config
+    (use-package yasnippet-snippets)
+    (yas-reload-all) ;; ur custom snippets won't work untill u run this
+    (add-hook 'prog-mode-hook #'yas-minor-mode))
 #+END_SRC
 
 
@@ -1041,6 +1034,23 @@ This re-indents, untabifies, and cleans up whitespace
     (other-window 1))
 #+END_SRC
 
+** Development
+select a region and add wrap it in tag... properly
+#+BEGIN_SRC emacs-lisp
+  (defun surround-html (start end tag)
+     "Wraps the specified region (or the current 'symbol / word'
+   with a properly formatted HTML tag."
+     (interactive "r\nsTag: " start end tag)
+     (save-excursion
+       (narrow-to-region start end)
+       (goto-char (point-min))
+       (insert (format "<%s>" tag))
+       (goto-char (point-max))
+       (insert (format "</%s>" tag))
+       (widen)))
+
+  (define-key html-mode-map (kbd "C-c C-t") 'surround-html)
+#+END_SRC
 ** Other f-s
 #+BEGIN_SRC emacs-lisp
   (defun kill-all-buffers ()
