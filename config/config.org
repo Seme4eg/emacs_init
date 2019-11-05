@@ -11,6 +11,16 @@ Automatically install certain packages, as well as the ease of lazily loading th
   (require 'use-package-ensure)
   (setq use-package-always-ensure t) ;; instead of putting ':ensure' everywhere
 #+END_SRC
+* Packages update
+*slows down the startup A LOT*
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package auto-package-update
+  ;;   :config
+  ;;   (setq auto-package-update-delete-old-versions t)
+  ;;   (setq auto-package-update-hide-results t)
+  ;;   (auto-package-update-maybe))
+#+END_SRC
+
 * Evil
 ** evil itself
 #+BEGIN_SRC emacs-lisp
@@ -26,9 +36,17 @@ Automatically install certain packages, as well as the ease of lazily loading th
 #+BEGIN_SRC emacs-lisp
   (use-package evil-leader
     :init
-    (setq evil-leader/in-all-states 1)
     (global-evil-leader-mode)
-    (evil-leader/set-leader ","))
+    (evil-leader/set-leader ",")
+    :config
+    (setq evil-leader/in-all-states 1
+          ;; Change cursor color depending on mode (only GUI emacs)
+          evil-emacs-state-cursor '("cyan" box)
+          evil-normal-state-cursor '("cyan" box)
+          evil-visual-state-cursor '("orange" box)
+          evil-insert-state-cursor '("green" bar)
+          evil-replace-state-cursor '("red" bar)
+          evil-operator-state-cursor '("cyan" hollow)))
 #+END_SRC
 
 ** evil Multiple-Cursors | [[https://github.com/gabesoft/evil-mc][github]]
@@ -67,27 +85,22 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
 ** Major settings
 #+BEGIN_SRC emacs-lisp
-  (setq fill-column 110)
-
-  (setq x-select-enable-clipboard t)
-  (desktop-save-mode 1) ;; automatically save/restore sessions
-
-  (setq make-backup-files nil) ;; disable backup files
-  (setq auto-save-default nil) ;; disable auto-save files
-
-  (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
-
-  ;; no need to re-enable each feature bit-by-bit:
-  (setq disabled-command-function nil)
-
-  ;; Misc
-  (setq echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
+  (setq fill-column 110
+        x-select-enable-clipboard t ;; paste - look for shortcut
+        make-backup-files nil ;; disable backup files
+        auto-save-default nil ;; disable auto-save files
+        disabled-command-function nil ;; no need to re-enable each feature bit-by-bit:
+        ;; Misc
+        echo-keystrokes 0.1 ;; Turn down the time to echo keystrokes
+        visible-bell t ;; Get rid of the beeps
         use-dialog-box nil ;; use the echo area instead of dialog boxes
         visible-bell t) ;; Use a visual indicator instead of making horrible noises
 
+  (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
+
   ;; Vendor directory (for manually installed packages)
-  (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
-  (add-to-list 'load-path sads/vendor-dir)
+  ;; (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
+  ;; (add-to-list 'load-path sads/vendor-dir)
 
   (dolist (project (directory-files sads/vendor-dir t "\\w+"))
   (when (file-directory-p project)
@@ -96,15 +109,13 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
 ** Init file support
 #+BEGIN_SRC emacs-lisp
-  ;; (require 'cl)
-  (require 'cl-lib) ;; new library for common-lib compatability
+  (require 'cl-lib) ;; new library for common-lib compatability (cl - old)
 
   (use-package dash
-    :ensure t
     :config (eval-after-load "dash" '(dash-enable-font-lock)))
 
-  (use-package s :ensure t)
-  (use-package f :ensure t)
+  (use-package s)
+  (use-package f)
 #+END_SRC
 ** Hooks
 #+BEGIN_SRC emacs-lisp
@@ -132,12 +143,14 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (delete-selection-mode t)
   (transient-mark-mode t)
 
+  (desktop-save-mode 1) ;; automatically save/restore sessions
+
   (global-prettify-symbols-mode t) ;; type 'lambda' to understand
 
-  (save-place-mode 1)
-  (setq save-place-forget-unreadable-files t)
+  (save-place-mode 1) ;; save cursor position when u quit file
+  (setq save-place-forget-unreadable-files t) ;; set to nil if something will work slow
 
-  (global-subword-mode 1) ;; to be able to move in camelCase
+  (global-subword-mode 1) ;; move in camelCase
 
   (global-auto-revert-mode nil)
 
@@ -159,8 +172,7 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (global-set-key (kbd "C-;") 'comment-or-uncomment-region)
   (global-set-key (kbd "C-<tab>") 'dabbrev-expand)
   (define-key minibuffer-local-map (kbd "C-<tab>") 'dabbrev-expand)
-  ;; paste from clipboard by middle mouse button
-  (global-set-key (kbd "<mouse-2>") 'clipboard-yank)
+  (global-set-key (kbd "<mouse-2>") 'clipboard-yank) ;; paste from clipboard by middle mouse button
 #+END_SRC
 
 ** Navigation
@@ -179,14 +191,6 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
 ** Not used / unknown purpose
    #+BEGIN_SRC emacs-lisp
-     ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
-
-     ;; Terminal setup (stop prompt appearing each time when starting 'ansi-term')
-     ;; (defvar my-term-shell "/bin/bash")
-     ;; (defadvice ansi-term (before force-bash)
-     ;;   (interactive (list my-term-shell)))
-     ;; (ad-activate 'ansi-term)
-
      ;; (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
      ;; (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
@@ -205,14 +209,12 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 #+END_SRC
 
 *** Rainbow
-couldn't use just ~:hook prog-mode)~ cuz it transforms into
-~:hook (prog-mode . rainbow-delimiters)~ and doesn't add ~-mode~
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-mode :diminish
-    :hook prog-mode)
-
-  (use-package rainbow-delimiters
-    :hook (prog-mode . rainbow-delimiters-mode))
+    :hook prog-mode
+    :config
+    (use-package rainbow-delimiters
+      :hook (prog-mode . rainbow-delimiters-mode)))
 #+END_SRC
 
 *** Dashboard
@@ -220,8 +222,8 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
   (use-package dashboard
     :config
     (dashboard-setup-startup-hook)
-    (setq dashboard-items '((recents . 10)))
-    (setq dashboard-banner-logo-title "Yo, me"))
+    (setq dashboard-items '((recents . 10))
+          dashboard-banner-logo-title "Yo, me"))
 #+END_SRC
 
 *** Avy
@@ -252,33 +254,22 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
 #+BEGIN_SRC emacs-lisp
   ;; Splash Screen
   (setq inhibit-splash-screen t
-      initial-scratch-message nil
-      initial-major-mode 'org-mode)
-
-  ;; Get rid of the beeps
-  (setq visible-bell t)
+        initial-scratch-message nil
+        initial-major-mode 'org-mode)
 
   ;; Scroll-, tool-, menu bars*
   (menu-bar-mode -1)
   (when (window-system)
-    (tool-bar-mode 0)               ;; Toolbars were only cool with XEmacs
+    (tool-bar-mode 0) ;; Toolbars were only cool with XEmacs
     (when (fboundp 'horizontal-scroll-bar-mode)
       (horizontal-scroll-bar-mode -1))
-    (scroll-bar-mode -1))            ;; Scrollbars are waste screen estate
+    (scroll-bar-mode -1)) ;; Scrollbars are waste screen estate
 
   ;; (if window-system (toggle-scroll-bar -1))
 #+END_SRC
+
 ** Other visual settings
 #+BEGIN_SRC emacs-lisp
-  ;; Change cursor color depending on mode (only GUI emacs)
-  (setq evil-emacs-state-cursor '("cyan" box))
-  (setq evil-normal-state-cursor '("cyan" box))
-  (setq evil-visual-state-cursor '("orange" box))
-  (setq evil-insert-state-cursor '("green" bar))
-  (setq evil-replace-state-cursor '("red" bar))
-  (setq evil-operator-state-cursor '("cyan" hollow))
-
-  ;; Display Settings
   (setq-default indicate-empty-lines t)
   (when (not indicate-empty-lines)
   (toggle-indicate-empty-lines))
@@ -289,9 +280,6 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
    #+BEGIN_SRC emacs-lisp
      ;; when in GUI - highlight the line with the cursor
      ;; didn't enable cuz of the comment line highlighting in emacs theme
-     ;; (when window-system (global-hl-line-mode t))
-
-     ;; highlight the line with the cursor
      ;; (when window-system (global-hl-line-mode t))
 
      ;; Color Codes
@@ -335,21 +323,6 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
 
   (eval-after-load 'wdired
     (add-hook 'wdired-mode-hook 'evil-normal-state))
-#+END_SRC
-
-** Other
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'css-mode-hook (lambda ()
-			     (rainbow-mode)))
-#+END_SRC
-* Packages update
-*slows down the startup A LOT*
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package auto-package-update
-  ;;   :config
-  ;;   (setq auto-package-update-delete-old-versions t)
-  ;;   (setq auto-package-update-hide-results t)
-  ;;   (auto-package-update-maybe))
 #+END_SRC
 
 * ORG
@@ -459,23 +432,18 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
 * Markdown
 #+BEGIN_SRC emacs-lisp
   (use-package markdown-mode
-    :ensure t
     :mode (("README\\.md\\'" . gfm-mode)
-	   ("\\.md\\'" . markdown-mode)
-	   ("\\.markdown\\'" . markdown-mode))
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
     :init
     ;; use a custom css file to make it a little prettier
-    (setq markdown-css-paths `(expand-file-name "markdown.css" sads/vendor-dir))
+    ;; (setq markdown-css-paths `(expand-file-name "markdown.css" sads/vendor-dir))
+
     ;; generate HTML previews from within the mode
     ;; (setq markdown-command "pandoc --smart -f markdown -t html"))
     (setq markdown-command "markdown"))
-
-  ;; prev. settings
-  ;; (add-hook 'markdown-mode-hook
-  ;; 	  (lambda ()
-  ;; 	    (visual-line-mode t)
-  ;; 	    (flyspell-mode t)))
 #+END_SRC
+
 * IVY | [[https://oremacs.com/swiper/][manual]]
   [[https://www.masteringemacs.org/article/introduction-to-ido-mode][ido]] | helm | ivy -- 3 different ways
 ** IVY enable
@@ -493,12 +461,11 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
     :bind
     ("C-s" . swiper) ;; 'M-r' - toggle fuzzy search in swiper
     :init
-    (setq ivy-use-virtual-buffers t)
-    ;; (setq ivy-count-format "(%d/%d) ")
-    (setq ivy-count-format "")
-    (setq ivy-initial-inputs-alist nil)
-    (setq ivy-re-builders-alist
-          '((t . ivy--regex-fuzzy))))
+    (setq ivy-use-virtual-buffers t
+          ;; (setq ivy-count-format "(%d/%d) ")
+          ivy-count-format ""
+          ivy-initial-inputs-alist nil
+          ivy-re-builders-alist '(t . ivy--regex-fuzzy)))
 #+END_SRC
 
 ** Smex
@@ -508,7 +475,6 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
     :init (smex-initialize)
     :bind ("M-X" . smex-major-mode-commands))
 
-  ;; don't know for what is setting below
   ;; (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
 #+END_SRC
 
@@ -588,15 +554,13 @@ alternative - 'Ace-window'
 #+BEGIN_SRC emacs-lisp
   (use-package switch-window
     :config
-    (setq switch-window-input-style 'minibuffer)
-    (setq switch-window-increase 4)
-    (setq switch-window-threshold 2) ;; after how many windows will this pop up
-    (setq switch-window-shortcut-style 'qwerty)
-    (setq switch-window-qwerty-shortcuts
-	  '("a" "s" "d" "f" "j" "k" "l"))
+    (setq switch-window-input-style 'minibuffer
+          switch-window-increase 4
+          switch-window-threshold 2 ;; after how many windows will this pop up
+          switch-window-shortcut-style 'qwerty
+          switch-window-qwerty-shortcuts '("a" "s" "d" "f" "j" "k" "l"))
     :bind
-    ;; remap default funciton with 'switch-window'
-    ([remap other-window] . switch-window))
+    ([remap other-window] . switch-window)) ;; remap default funciton with 'switch-window'
 #+END_SRC
 
 * Dmenu
@@ -656,19 +620,19 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
   (use-package web-mode
     :defer t
     :config
-    (setq web-mode-style-padding 2)
-    (setq web-mode-script-padding 2)
-    (setq web-mode-markup-indent-offset 2)
-    (setq web-mode-css-indent-offset 2)
-    (setq web-mode-code-indent-offset 2)
-    (setq web-mode-attr-indent-offset t)
-    (setq web-mode-sql-indent-offset 2)
-    (setq web-mode-indent-style 2)
-    (setq web-mode-enable-current-column-highlight t)
-    (setq web-mode-enable-current-element-highlight t)
-    ;; set up per-language ac-sources
+    (setq web-mode-style-padding 2
+          web-mode-script-padding 2
+          web-mode-markup-indent-offset 2
+          web-mode-css-indent-offset 2
+          web-mode-code-indent-offset 2
+          web-mode-attr-indent-offset t
+          web-mode-sql-indent-offset 2
+          web-mode-indent-style 2
+          web-mode-enable-current-column-highlight t
+          web-mode-enable-current-element-highlight t)
     (define-key web-mode-map (kbd "C-n") 'web-mode-tag-match)
 
+    ;; set up per-language ac-sources FIX
     ;;  (setq web-mode-ac-sources-alist
     ;;	'(("php" . (ac-source-php-extras ac-source-yasnippet ac-source-php-auto-yasnippets))
     ;;	  ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
@@ -937,6 +901,16 @@ to use eslint install it: ~npm i -g eslint~
   ;;
   ;; (setq eshell-cmpl-cycle-completions nil)
   ;;
+
+     ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
+
+       ;; Terminal setup (stop prompt appearing each time when starting 'ansi-term')
+       ;; (defvar my-term-shell "/bin/bash")
+       ;; (defadvice ansi-term (before force-bash)
+       ;;   (interactive (list my-term-shell)))
+       ;; (ad-activate 'ansi-term)
+
+
 #+END_SRC
 
 ** ag frontend
@@ -949,24 +923,6 @@ to use eslint install it: ~npm i -g eslint~
 
 
 * User functions
-** Writing custom function
-#+BEGIN_SRC emacs-lisp
-  ;; create a fnction that inserts a line 'above' cur. cursor position
-
-  (defun sad/insert-line-before (times)
-    ;; (interactive) separates f-s that are used by other f-s
-    ;; and those that are called directly
-    ;; 'p' means - take a 'parameter'
-    (interactive "p")
-    ;; store your current status, executes few things and goes back where it was before
-    (save-excursion
-      (move-beginning-of-line 1)
-      (newline times)))
-
-  ;; now after a f-n takes parameter 'times' to execute it 6 times: `C-6 {binded kbd}`
-
-  (global-set-key (kbd "C-S-o") 'sad/insert-line-before)
-#+END_SRC
 ** Config edit/reload
 #+BEGIN_SRC emacs-lisp
   ;; edit
@@ -1048,15 +1004,13 @@ select a region and add wrap it in tag... properly
     (interactive)
     (mapc 'kill-buffer (buffer-list))) ;; loop thrue list
   ;; set kbd if u will use it often
-#+END_SRC
-* Keybindings
-** Packages
-*** Helm
-#+BEGIN_SRC emacs-lisp
-  ;; (evil-leader/set-key "x" 'helm-M-x)
-  ;; (global-set-key (kbd "M-x") 'helm-M-x)
-  ;; (global-set-key (kbd "C-h o") 'helm-occur)
-  ;; (evil-leader/set-key "hf" 'helm-find-files)
-  ;; (evil-leader/set-key "hb" 'helm-buffers-list)
-  ;; (evil-leader/set-key "hp" 'helm-browse-project)
+
+  (defun sad/insert-line-before (times)
+    ;; insert a line 'above' cur. cursor position
+    (interactive "p")
+    (save-excursion
+      (move-beginning-of-line 1)
+      (newline times)))
+
+  (global-set-key (kbd "C-S-o") 'sad/insert-line-before) ;; `C-6 {binded kbd}`
 #+END_SRC
