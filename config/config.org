@@ -33,7 +33,7 @@ Automatically install certain packages, as well as the ease of lazily loading th
 
 ** evil Multiple-Cursors | [[https://github.com/gabesoft/evil-mc][github]]
 #+BEGIN_SRC emacs-lisp
-  (use-package evil-mc
+  (use-package evil-mc :diminish
     :init
     (global-evil-mc-mode 1)
     (evil-define-key 'visual evil-mc-key-map
@@ -208,7 +208,7 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 couldn't use just ~:hook prog-mode)~ cuz it transforms into
 ~:hook (prog-mode . rainbow-delimiters)~ and doesn't add ~-mode~
 #+BEGIN_SRC emacs-lisp
-  (use-package rainbow-mode
+  (use-package rainbow-mode :diminish
     :hook prog-mode)
 
   (use-package rainbow-delimiters
@@ -239,25 +239,13 @@ couldn't use just ~:hook prog-mode)~ cuz it transforms into
 
   (use-package spaceline
     :config
+    (use-package diminish
+      :init
+      (diminish 'undo-tree-mode)
+      (diminish 'subword-mode))
     (require 'spaceline-config)
     (setq powerline-default-separator (quote arrow))
     (spaceline-spacemacs-theme))
-#+END_SRC
-
-**** Diminish
-hide some modes in spaceline
-#+BEGIN_SRC emacs-lisp
-  (use-package diminish
-    :init
-    (diminish 'projectile-mode)
-    (diminish 'subword-mode)
-    (diminish 'counsel-mode)
-    (diminish 'ivy-mode)
-    (diminish 'abbrev-mode)
-    (diminish 'company-mode)
-    (diminish 'rainbow-mode)
-    ;; (diminish 'undo-tree-mode)
-    (diminish 'evil-mc-mode))
 #+END_SRC
 
 ** Display settings
@@ -369,6 +357,7 @@ hide some modes in spaceline
 ** main settings
 #+BEGIN_SRC emacs-lisp
   (use-package org
+    :diminish abbrev-mode
     :init
     (setq org-log-done t ;; enable logging when tasks are complete
           org-list-description-max-indent 5
@@ -495,6 +484,8 @@ M-o (ivy-dispatching-done) presents available actions for selection, calls it af
 C-M-o (ivy-dispatching-call) presents available actions for selection, calls it after selection, and then does not exit.
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
+    :diminish counsel-mode
+    :diminish ivy-mode
     :config
     (use-package flx)
     (ivy-mode 1)
@@ -559,7 +550,7 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
 [[https://github.com/company-mode/company-mode/issues/68#issuecomment-36208504][company vs auto-complete]]
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company :defer t
+  (use-package company :defer t :diminish
     :init
     (setq company-idle-delay 0.3
           company-dabbrev-ignore-case t
