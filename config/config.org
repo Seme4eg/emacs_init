@@ -99,8 +99,8 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   (defalias 'yes-or-no-p 'y-or-n-p) ;; Yes and No prompt
 
   ;; Vendor directory (for manually installed packages)
-  ;; (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
-  ;; (add-to-list 'load-path sads/vendor-dir)
+  (defvar sads/vendor-dir (expand-file-name "vendor" user-emacs-directory))
+  (add-to-list 'load-path sads/vendor-dir)
 
   (dolist (project (directory-files sads/vendor-dir t "\\w+"))
   (when (file-directory-p project)
@@ -291,7 +291,7 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
    #+END_SRC
 
 
-* Default packages
+* Build-in pkgs
 ** Dired
 #+BEGIN_SRC emacs-lisp
   (setq dired-dwim-target t)
@@ -465,7 +465,7 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
           ;; (setq ivy-count-format "(%d/%d) ")
           ivy-count-format ""
           ivy-initial-inputs-alist nil
-          ivy-re-builders-alist '(t . ivy--regex-fuzzy)))
+          ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
 #+END_SRC
 
 ** Smex
