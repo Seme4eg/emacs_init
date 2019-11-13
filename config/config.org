@@ -26,7 +26,7 @@ Automatically install certain packages, as well as the ease of lazily loading th
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :init (evil-mode t)
-    :bind ("M-c" . evil-normal-state)
+    :bind ("C-f" . evil-normal-state)
     :config
     ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
     (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
@@ -160,11 +160,6 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
   ;; conf-mode
   (add-to-list 'auto-mode-alist '("\\.gitconfig$" . conf-mode))
   (add-to-list 'auto-mode-alist '("\\.gitignore$" . conf-mode))
-
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
 #+END_SRC
 
 ** Keybindings
@@ -429,6 +424,7 @@ now after typing '<el TAB' u will get code block with 'emacs-lisp' src
   (add-to-list 'org-structure-template-alist
 	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
 #+END_SRC
+
 * Markdown
 #+BEGIN_SRC emacs-lisp
   (use-package markdown-mode
@@ -630,7 +626,14 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
           web-mode-indent-style 2
           web-mode-enable-current-column-highlight t
           web-mode-enable-current-element-highlight t)
+
     (define-key web-mode-map (kbd "C-n") 'web-mode-tag-match)
+
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.js$" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.vue$" . web-mode))
 
     ;; set up per-language ac-sources FIX
     ;;  (setq web-mode-ac-sources-alist
@@ -711,6 +714,13 @@ First install tern : ~npm i -g tern~ (install globally)
     :config
     (js2r-add-keybindings-with-prefix "C-c b")
     (define-key key-translation-map (kbd ",r") (kbd "C-c b")))
+#+END_SRC
+
+** Vue-mode
+#+BEGIN_SRC emacs-lisp
+    (use-package vue-mode
+      :config
+      (add-to-list 'auto-mode-alist '("\\.vue$" . vue-mode)))
 #+END_SRC
 
 ** Skewer | [[https://github.com/skeeto/skewer-mode][github]]
