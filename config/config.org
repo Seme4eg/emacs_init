@@ -778,9 +778,28 @@ First install tern : ~npm i -g tern~ (install globally)
 
 ** Vue-mode
 #+BEGIN_SRC emacs-lisp
-    (use-package vue-mode
-      :config
-      (add-to-list 'auto-mode-alist '("\\.vue$" . vue-mode)))
+  (use-package vue-mode
+    :config
+    ;; (add-hook 'prog-mode-hook 'fringe-mode '(8 . 0)) ;; dunno if that'll work
+    ;; (add-hook 'prog-mode-hook #'yas-minor-mode))
+
+    (add-hook 'vue-mode-hook
+              (lambda ()
+                (yas-minor-mode t)
+
+                (linum-mode)
+                (hs-minor-mode)
+                (rainbow-mode)
+                (rainbow-delimiters-mode)
+                (color-identifiers-mode)
+                (smartparens-mode)
+
+                (emmet-mode)
+                ;; (flycheck-add-mode 'vue-mode)
+                ;; (flycheck-prog-mode)
+                (tern-mode t)))
+
+    (add-to-list 'auto-mode-alist '("\\.vue$" . vue-mode)))
 #+END_SRC
 
 ** Skewer | [[https://github.com/skeeto/skewer-mode][github]]
