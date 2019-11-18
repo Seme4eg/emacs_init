@@ -1,4 +1,4 @@
-(setenv "SSH_ASKPASS" "git-gui--askpass")
+;; (setenv "SSH_ASKPASS" "git-gui--askpass")
 
 ;; increase the cache before starting garbage collection
 (setq gc-cons-threshold 50000000)
@@ -8,11 +8,11 @@
 (setq gnutls-min-prime-bits 4096)
 
 (require 'package)
+(setq package-check-signature nil) ;; on amazon linux gpg key was expired --> error
 (setq package-enable-at-startup nil)
 (setq package-archives '(("org"       . "http://orgmode.org/elpa/")
-                         ("gnu"       . "http://elpa.gnu.org/packages/")
-                         ("melpa"     . "http://melpa.org/packages/")))
-;; ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("gnu"       . "https://elpa.gnu.org/packages/")
+                         ("melpa"     . "https://melpa.org/packages/")))
 (package-initialize)
 (package-refresh-contents)
 
@@ -45,6 +45,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#292b2e" :foreground "#b2b2b2" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 103 :width normal :foundry "outline" :family "Source Code Pro")))))
+ '(default ((t (:inherit nil :stipple nil :background "#292b2e" :foreground "#b2b2b2" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 105 :width normal :foundry "PfEd" :family "Source Code Pro")))))
 
 ;; (require 'custom)

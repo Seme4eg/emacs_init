@@ -364,11 +364,11 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 embedd languages inside .org files with proper font-locking
 Allows to extract and execute code.
 #+BEGIN_SRC emacs-lisp
-  ;; (require 'ob) ;; don't know what for is this line
+  ;; (require 'ob) ;; don't know if that's needed, seems not
 
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((shell . t)
+   '((sh . t) ;; sh, not 'shell', otherwise -- error
      (js . t)
      (C . t)))
 #+END_SRC
@@ -450,13 +450,12 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
   (use-package counsel
     :diminish counsel-mode
     :diminish ivy-mode
+    :bind ("C-s" . swiper) ;; 'M-r' - toggle fuzzy search in swiper
+    :init
+    (counsel-mode)
+    (ivy-mode)
     :config
     (use-package flx)
-    (ivy-mode 1)
-    (counsel-mode 1)
-    :bind
-    ("C-s" . swiper) ;; 'M-r' - toggle fuzzy search in swiper
-    :init
     (setq ivy-use-virtual-buffers t
           ;; (setq ivy-count-format "(%d/%d) ")
           ivy-count-format ""
@@ -750,8 +749,8 @@ Kick things off with ~run-skewer~, and then:
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens
     :init (add-hook 'prog-mode-hook 'smartparens-mode)
-    ;; (use-package evil-smartparents
-    ;;   :init (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
+    (use-package evil-smartparens
+      :init (add-hook 'smartparens-enabled-hook #'evil-smartparens-mode))
     (evil-leader/set-key
       "s(" 'sp-backward-unwrap-sexp ;; unwrap parent expression
       "s)" 'sp-unwrap-sexp ;; unwrap current expression
@@ -774,10 +773,12 @@ to use eslint install it: ~npm i -g eslint~
   (use-package flycheck
     :diminish flyspell-mode
     :init
+    (setq ispell-program-name "C:/Program Files (x86)/Aspell/bin/aspell.exe"
+          ispell-list-command "--list")
 
     ;; (global-flycheck-mode)
-    (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; for now stick to this variant
-    ;; (add-hook 'prog-mode-hook 'flycheck-mode)
+    ;; (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; for now stick to this variant
+    (add-hook 'prog-mode-hook 'flycheck-mode)
 
     ;; FIX
     ;; (add-hook 'js2-mode-hook
