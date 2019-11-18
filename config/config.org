@@ -364,11 +364,11 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 embedd languages inside .org files with proper font-locking
 Allows to extract and execute code.
 #+BEGIN_SRC emacs-lisp
-  ;; (require 'ob) ;; don't know what for is this line
+  ;; (require 'ob) ;; don't know if that's needed, seems not
 
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((shell . t)
+   '((sh . t) ;; sh, not 'shell', otherwise -- error
      (js . t)
      (C . t)))
 #+END_SRC
