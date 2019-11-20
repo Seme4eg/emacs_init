@@ -609,6 +609,44 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
     (define-key evil-normal-state-map (kbd "gT") 'persp-prev))
 #+END_SRC
 
+* Silversearch front
+** wgrep | [[https://github.com/mhayashi1120/Emacs-wgrep][github]]
+#+BEGIN_SRC emacs-lisp
+  (use-package wgrep
+    :config
+    (setq wgrep-auto-save-buffer t)
+    (defadvice wgrep-change-to-wgrep-mode (after wgrep-set-normal-state)
+      (if (fboundp 'evil-normal-state)
+          (evil-normal-state)))
+    (ad-activate 'wgrep-change-to-wgrep-mode)
+
+    (defadvice wgrep-finish-edit (after wgrep-set-motion-state)
+      (if (fboundp 'evil-motion-state)
+          (evil-motion-state)))
+    (ad-activate 'wgrep-finish-edit))
+#+END_SRC
+
+** ag | [[https://agel.readthedocs.io/en/latest/usage.html][documentation]]
+allows you to search using ag from inside Emacs. You can filter by
+file type, edit results inline, or find files
+
+installation on [[https://github.com/ggreer/the_silver_searcher/wiki/Windows][windows]]
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ag
+    :config
+    (use-package wgrep-ag :commands (wgrep-ag-setup))
+    ;; (add-to-list 'ag-arguments "--word-regexp"))
+    (add-hook 'ag-mode-hook
+              (lambda ()
+                (wgrep-ag-setup)
+                (define-key ag-mode-map (kbd "n") 'evil-search-next)
+                (define-key ag-mode-map (kbd "N") 'evil-search-previous)))
+    (setq ag-highlight-search t
+          ag-reuse-buffers t
+          ag-reuse-window t))
+#+End_SRC
+
 
 * Development
 ** Web-mode | [[web-mode.org][documentation]]
@@ -923,14 +961,6 @@ to use eslint install it: ~npm i -g eslint~
        ;; (ad-activate 'ansi-term)
 
 
-#+END_SRC
-
-** ag frontend
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package ag
-  ;;   :commands  ag
-  ;;   :init      (setq ag-highlight-search t)
-  ;;   :config    (add-to-list 'ag-arguments "--word-regexp"))
 #+END_SRC
 
 

@@ -2,26 +2,6 @@
 ** Encrypting files
 https://github.com/howardabrams/dot-files/blob/master/emacs.org#encrypting-files
 
-* ag | [[https://github.com/Wilfred/ag.el][github]]
-allows you to search using ag from inside Emacs. You can filter by
-file type, edit results inline, or find files
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ag
-    :ensure t
-    :commands (ag ag-project)
-    :config
-    (add-hook 'ag-mode-hook
-	      (lambda ()
-		(wgrep-ag-setup)
-		(define-key ag-mode-map (kbd "n") 'evil-search-next)
-		(define-key ag-mode-map (kbd "N") 'evil-search-previous)))
-    (setq ag-executable "/usr/local/bin/ag")
-    (setq ag-highlight-search t)
-    (setq ag-reuse-buffers t)
-    (setq ag-reuse-window t))
-#+END_SRC
-
 
 * To know about
 ** exec-path-from-shell | [[https://github.com/purcell/exec-path-from-shell][github]]
@@ -143,3 +123,10 @@ ide-like look and feel. Not sure of its useful-ness.
 https://github.com/howardabrams/dot-files/blob/master/emacs.org#direx
 ** Undo and redo
 https://github.com/howardabrams/dot-files/blob/master/emacs.org#undo-and-redo
+
+* Additional info
+- [[https://github.com/howardabrams/dot-files/blob/06f1e666e78c606ab32114426b69ec0ecf9a503e/emacs-web.org#impatient-mode][impatient mode]] - live update HTML
+- Emacs is good for lisp, for other langs use [[https://github.com/bbatsov/prelude][prelude]] - enhanced Emacs
+  25.1+ distribution
+- [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#applications][applications]] - web browsing with emacs, chatting
+- get hand of how to use `GTAGS` lisp, link u can find below Aaron Beaver vid
