@@ -368,8 +368,9 @@ Allows to extract and execute code.
 
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((sh . t) ;; sh, not 'shell', otherwise -- error
-     (js . t)
+   '((js . t)
+     ;; commented line below cuz dunno how to maintain both for now (FIX)
+     ;; (shell . t) ;; 'sh' on ubuntu, 'shell' on windows
      (C . t)))
 #+END_SRC
 
