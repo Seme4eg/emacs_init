@@ -527,40 +527,6 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
     (define-key company-active-map (kbd "C-p") 'company-select-previous))
 #+END_SRC
 
-* Switch-window
-alternative - 'Ace-window'
-
-#+BEGIN_SRC emacs-lisp
-  (use-package switch-window
-    :config
-    (setq switch-window-input-style 'minibuffer
-          switch-window-increase 4
-          switch-window-threshold 2 ;; after how many windows will this pop up
-          switch-window-shortcut-style 'qwerty
-          switch-window-qwerty-shortcuts '("a" "s" "d" "f" "j" "k" "l"))
-    :bind
-    ([remap other-window] . switch-window)) ;; remap default funciton with 'switch-window'
-#+END_SRC
-
-* Dmenu
-~<leader> d~ - runs small terminal for launching applications (run and type 'discord')
-#+BEGIN_SRC emacs-lisp
-  (use-package dmenu
-    :init (evil-leader/set-key "d" 'dmenu))
-#+END_SRC
-* Popup-kill-ring
-~M-y~ - get popup with things u previously deleted..
-~C-n/p~ - cycle through them
-#+BEGIN_SRC emacs-lisp
-  (use-package popup-kill-ring
-    :bind ("M-y" . popup-kill-ring))
-#+END_SRC
-* Sudo-edit
-#+BEGIN_SRC emacs-lisp
-  (use-package sudo-edit
-    :bind ("s-f" . sudo-edit))
-#+END_SRC
-
 * Perspective | [[https://github.com/nex3/perspective-el][github]]
 workflow common commands:
 - C-x x P to investigate a new project with its new perspective (this
@@ -914,6 +880,51 @@ to use eslint install it: ~npm i -g eslint~
     (use-package yasnippet-snippets)
     (yas-reload-all) ;; ur custom snippets won't work untill u run this
     (add-hook 'prog-mode-hook #'yas-minor-mode))
+#+END_SRC
+
+
+* Misc
+** Avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :init (setq avy-background t)
+    :config
+    (evil-leader/set-key "SPC" 'avy-goto-char))
+#+END_SRC
+
+** Sudo-edit
+#+BEGIN_SRC emacs-lisp
+  (use-package sudo-edit
+    :bind ("s-f" . sudo-edit))
+#+END_SRC
+
+** Switch-window
+alternative - 'Ace-window'
+
+#+BEGIN_SRC emacs-lisp
+  (use-package switch-window
+    :config
+    (setq switch-window-input-style 'minibuffer
+          switch-window-increase 4
+          switch-window-threshold 2 ;; after how many windows will this pop up
+          switch-window-shortcut-style 'qwerty
+          switch-window-qwerty-shortcuts '("a" "s" "d" "f" "j" "k" "l"))
+    :bind
+    ([remap other-window] . switch-window)) ;; remap default funciton with 'switch-window'
+#+END_SRC
+
+** Dmenu
+~<leader> d~ - runs small terminal for launching applications (run and type 'discord')
+#+BEGIN_SRC emacs-lisp
+  (use-package dmenu
+    :init (evil-leader/set-key "d" 'dmenu))
+#+END_SRC
+
+** Popup-kill-ring
+~M-y~ - get popup with things u previously deleted..
+#+BEGIN_SRC emacs-lisp
+  (use-package popup-kill-ring
+    :bind ("M-y" . popup-kill-ring))
 #+END_SRC
 
 
