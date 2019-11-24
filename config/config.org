@@ -212,23 +212,6 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
       :hook (prog-mode . rainbow-delimiters-mode)))
 #+END_SRC
 
-*** Dashboard
-#+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :config
-    (dashboard-setup-startup-hook)
-    (setq dashboard-items '((recents . 10))
-          dashboard-banner-logo-title "Yo, me"))
-#+END_SRC
-
-*** Avy
-#+BEGIN_SRC emacs-lisp
-  (use-package avy
-    :init (setq avy-background t)
-    :config
-    (evil-leader/set-key "SPC" 'avy-goto-char))
-#+END_SRC
-
 *** Spaceline / Powerline
 #+BEGIN_SRC emacs-lisp
   ;; (use-package powerline
