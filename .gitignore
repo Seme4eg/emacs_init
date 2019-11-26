@@ -10,6 +10,7 @@
 # exept
 !init.el
 !config/
+!.projectile
 
 # ignore compiled .org files
 config/*.el

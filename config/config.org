@@ -457,38 +457,21 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
   ;; (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
 #+END_SRC
 
-* Projectile | [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]]
+* Projectile | [[https://docs.projectile.mx/en/latest/usage/][usage]]
+[[https://github.com/howardabrams/dot-files/blob/master/emacs.org#block-wrappers][source]] of setup below
+[[https://docs.projectile.mx/en/latest/configuration/#switching-projects][switching projects actions]] - useful
+
+*Ignoring files* ([[https://docs.projectile.mx/en/latest/projects/#ignoring-files][link]]):
+Create ~.projectile~ file and put there rules like in gitignore, but with prefix '-'
+
 #+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :diminish projectile-mode
+  (use-package projectile :diminish projectile-mode
     :init
-    (projectile-global-mode 1)
-    (setq projectile-keymap-prefix (kbd "C-x p"))
-    (evil-leader/set-key "pf" 'projectile-find-file)
-    ;; rebind this to some leader keys
-    ;; ("C-x p s" . projectile-ag)
-    :bind (("C-x p p" . projectile-switch-project)
-           ("C-x p g" . projectile-grep)
-           ("C-x p R" . projectile-regenerate-tags))
-    :commands projectile-ag
+    (projectile-mode 1)
+    (define-key evil-normal-state-map (kbd ",p") 'projectile-command-map)
     :config
-    (setq projectile-switch-project-action 'projectile-commander
-          projectile-completion-system 'ivy
-          projectile-create-missing-test-files t)
-    ;; (add-to-list 'projectile-globally-ignored-files ".DS_Store")
-
-    (def-projectile-commander-method ?d
-      "Open project root in dired."
-      (projectile-dired))
-
-    (def-projectile-commander-method ?s
-      "Open a *shell* buffer for the project."
-      (projectile-run-shell))
-
-    (def-projectile-commander-method ?F
-      "Git fetch."
-      (magit-status)
-      (call-interactively #'magit-fetch-current)))
+    (setq projectile-project-search-path '("~/git")
+          projectile-completion-system 'ivy))
 #+END_SRC
 
 * Company
