@@ -26,7 +26,7 @@ Automatically install certain packages, as well as the ease of lazily loading th
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :init (evil-mode t)
-    :bind ("C-f" . evil-normal-state)
+    :bind ("M-c" . evil-normal-state) ;; just some fallback in situations like committing in magit
     :config
     ;; brings cursor at the middle of the screen after pressing 'n' in evil-mode
     (defadvice evil-ex-search-next (after advice-for-evil-ex-search-next activate)
