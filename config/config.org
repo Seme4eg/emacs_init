@@ -798,8 +798,8 @@ First install tern : ~npm i -g tern~ (install globally)
 
                 (emmet-mode)
                 ;; (flycheck-add-mode 'html-tidy 'web-mode)
-                (flycheck-add-mode 'vue-mode)
-                (flycheck-prog-mode)
+                ;; (flycheck-add-mode 'vue-mode)
+                ;; (flycheck-prog-mode)
                 (tern-mode t)))
 
     (add-to-list 'auto-mode-alist '("\\.vue$" . vue-mode)))
