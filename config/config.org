@@ -955,6 +955,20 @@ alternative - 'Ace-window'
     :init (evil-leader/set-key "d" 'dmenu))
 #+END_SRC
 
+** Which-key | [[https://github.com/justbur/emacs-which-key][github]]
+~C-h~ - paging options
+- ~n~ / ~C-n~ - cycle throught pages *forward*
+- ~p~ / ~C-p~ - ..
+- ~!~ / ~u~ - undo last entered key
+- ~h~ - call default command bound to ~C-h~
+
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key :diminish
+    :init
+    (which-key-mode)
+    (which-key-show-major-mode))
+#+END_SRC
+
 ** Popup-kill-ring
 ~M-y~ - get popup with things u previously deleted..
 #+BEGIN_SRC emacs-lisp
