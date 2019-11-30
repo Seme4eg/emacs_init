@@ -766,6 +766,9 @@ First install tern : ~npm i -g tern~ (install globally)
 ~C-c C-r~ - Rename the variable under the cursor.
 ~C-c C-c~ - Find the type of the thing under the cursor.
 ~C-c C-d~ - Find docs of the thing under the cursor. Press again to open the associated URL (if any).
+
+> alternative to tern (but for different langs) - *dumb jump*
+
 #+BEGIN_SRC emacs-lisp
   (use-package tern
      :init
