@@ -485,11 +485,24 @@ C-M-o (ivy-dispatching-call) presents available actions for selection, calls it 
 *Ignoring files* ([[https://docs.projectile.mx/en/latest/projects/#ignoring-files][link]]):
 Create ~.projectile~ file and put there rules like in gitignore, but with prefix '-'
 
+counsel-projectile *new* commands:
+- ~{prefix} SPC~ (counsel-projectile) - jump to a project buffer or file,
+  or switch project
+- ~{prefix} s i~ (counsel-projectile-git-grep) - search project with git
+  grep
+- ~{prefix} O c~ (counsel-projectile-org-capture) - capture into project
+
+> use ~M-o~ in any 'ivy' buffer to get options
+
+([[https://github.com/ericdanan/counsel-projectile#the-counsel-projectile-switch-project-command][counsel-projectile-switch-project]]) ???
+
 #+BEGIN_SRC emacs-lisp
   (use-package projectile :diminish projectile-mode
     :init
-    (projectile-mode 1)
+    ; (projectile-mode 1)
     (define-key evil-normal-state-map (kbd ",p") 'projectile-command-map)
+    (use-package counsel-projectile
+      :init (counsel-projectile-mode))
     :config
     (setq projectile-project-search-path '("~/git")
           projectile-completion-system 'ivy))
