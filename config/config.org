@@ -761,9 +761,10 @@ Improved JavaScript editing mode for GNU Emacs
 #+END_SRC
 
 *** tern
-The [[https://ternjs.net/doc/manual.html#emacs][Tern]] project is a JavaScript analyzer that can be used to improve the JavaScript integration with editors like Emacs.
+The [[https://ternjs.net/doc/manual.html#emacs][Tern]] project is a JavaScript analyzer that can be used to improve the JavaScript integration with editors
+like Emacs.
 
-First install tern : ~npm i -g tern~ (install globally)
+to install packages globally withoug /EACCESS/ error go [[https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally][here]], then ~npm i -g tern~
 
 ~,tf~ - Jump to the definition of the thing under the cursor.
 ~,tp~ - Brings you back to last place you were when you pressed M-..
@@ -776,6 +777,8 @@ First install tern : ~npm i -g tern~ (install globally)
 #+BEGIN_SRC emacs-lisp
   (use-package tern
      :init
+     (add-to-list 'load-path "~/.npm-global/lib/node_modules/tern/emacs/")
+     (autoload 'tern-mode "tern.el" nil t)
      (add-hook 'js2-mode-hook (lambda () (tern-mode t)))
      (evil-leader/set-key
        "th" 'tern-highlight-refs
