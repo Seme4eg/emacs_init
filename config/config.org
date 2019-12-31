@@ -85,9 +85,10 @@ that we only have spaces. See this [[http://ergoemacs.org/emacs/emacs_tabs_space
 
 ** Major settings
 #+BEGIN_SRC emacs-lisp
-  (setq fill-column 110
-        x-select-enable-clipboard t ;; paste - look for shortcut
+  (setq-default fill-column 110) ;; must be default value to work
+  (setq x-select-enable-clipboard t ;; paste - look for shortcut
         make-backup-files nil ;; disable backup files
+        create-lockfiles nil
         auto-save-default nil ;; disable auto-save files
         disabled-command-function nil ;; no need to re-enable each feature bit-by-bit:
         ;; Misc
