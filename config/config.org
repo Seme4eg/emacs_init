@@ -821,6 +821,15 @@ First install tern : ~npm i -g tern~ (install globally)
     (add-to-list 'auto-mode-alist '("\\.vue$" . vue-mode)))
 #+END_SRC
 
+** Pug-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package pug-mode)
+#+END_SRC
+
+** Stylus-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package stylus-mode)
+#+END_SRC
 ** Skewer | [[https://github.com/skeeto/skewer-mode][github]]
 Kick things off with ~run-skewer~, and then:
 
