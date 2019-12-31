@@ -741,9 +741,10 @@ Improved JavaScript editing mode for GNU Emacs
 #+BEGIN_SRC emacs-lisp
   (use-package js2-mode
     :init
-    (setq-default js2-basic-indent 2
-                  js2-basic-offset 2
-                  js2-auto-indent-p t
+    ;; two settings below are ignored if they are in setq-default in some reason
+    (setq js2-basic-indent 2
+          js2-basic-offset 2)
+    (setq-default js2-auto-indent-p t
                   js2-cleanup-whitespace t
                   js2-enter-indents-newline t
                   js2-indent-on-enter-key t
