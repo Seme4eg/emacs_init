@@ -11,6 +11,7 @@
 !init.el
 !config/
 !.projectile
+!snippets/
 
 # ignore compiled .org files
 config/*.el
