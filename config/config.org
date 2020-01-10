@@ -325,6 +325,210 @@ requires ~all-the-icons~ fonts to be installed: ~M-x all-the-icons-install-fonts
     (add-hook 'wdired-mode-hook 'evil-normal-state))
 #+END_SRC
 
+** Eshell | [[https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org][reference]]
+*Eshell kbds:*
+~M-RET~ - can be used to accumulate further commands while a command is
+currently running. Since all input is passed to the subprocess being
+executed, there is no automatic input queueing as there is with other
+shells.
+~C-c C-t~ - truncate the buffer if it grows too large.
+~C-c C-r~ - move point to the beginning of the output of the last
+command. With a prefix argument, it will narrow to view only that
+output.
+~C-c C-o~ - delete the output from the last command.
+~C-c C-f~ - move forward a complete shell argument.
+~C-c C-b~ - move backward a complete shell argument.
+
+*** initial setup
+#+BEGIN_SRC emacs-lisp
+  (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
+  (setenv "PAGER" "cat") ;; don't let any programs pause output through $PAGER
+
+  (defun eshell-here ()
+    "Opens up a new shell in the directory associated with the current buffer's file."
+    (interactive)
+    (let* ((parent (file-name-directory (buffer-file-name)))
+           (name   (car
+                    (last
+                     (split-string parent "/" t)))))
+      (split-window-vertically)
+      (other-window 1)
+      (eshell "new")
+      (rename-buffer (concat "*eshell: " name "*"))
+
+      (insert (concat "ls"))
+      (eshell-send-input)))
+
+  (global-set-key (kbd "C-!") 'eshell-here)
+
+  (defun delete-single-window (&optional window)
+    "Remove WINDOW from the display.  Default is `selected-window'.
+  If WINDOW is the only one in its frame, then `delete-frame' too."
+    (interactive)
+    (save-current-buffer
+      (setq window (or window (selected-window)))
+      (select-window window)
+      (kill-buffer)
+      (if (one-window-p t)
+          (delete-frame)
+          (delete-window (selected-window)))))
+
+  (defun eshell/x (&rest args)
+    (delete-single-window))
+
+
+  (setq eshell-scroll-to-bottom-on-input 'all ;; any key pressed will jump back to prompt
+        ;; eshell-buffer-shorthand t ...  Can't see Bug#19391
+        eshell-error-if-no-glob t
+        eshell-hist-ignoredups t
+        eshell-save-history-on-exit t
+        ;; 'find' and 'chmod' behave differently from Emacs than their Unix counterparts:
+        eshell-prefer-lisp-functions nil ;; prefer the native implementations
+        eshell-destroy-buffer-when-process-dies t)
+
+  ;; aliases
+  (add-hook 'eshell-mode-hook (lambda ()
+      (eshell/alias "ff" "find-file $1")
+      (eshell/alias "fow" "find-file-other-window $1")
+
+      (eshell/alias "gd" "magit-diff-unstaged")
+      (eshell/alias "gds" "magit-diff-staged")
+      (eshell/alias "d" "dired $1")))
+
+  (defun eshell/clear ()
+    "Clear the eshell buffer."
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (eshell-send-input)))
+#+END_SRC
+
+*** special prompt
+#+BEGIN_SRC emacs-lisp
+  (defun curr-dir-git-branch-string (pwd)
+    "Returns current git branch as a string, or the empty string if
+  PWD is not in a git repo (or the git command is not found)."
+    (interactive)
+    (when (and (not (file-remote-p pwd))
+               (eshell-search-path "git")
+               (locate-dominating-file pwd ".git"))
+      (let* ((git-url (shell-command-to-string "git config --get remote.origin.url"))
+             (git-repo (file-name-base (s-trim git-url)))
+             (git-output (shell-command-to-string (concat "git rev-parse --abbrev-ref HEAD")))
+             (git-branch (s-trim git-output))
+             (git-icon  "\xe0a0")
+             (git-icon2 (propertize "\xf020" 'face `(:family "octicons"))))
+        (concat git-repo " " git-icon2 " " git-branch))))
+
+  (defun pwd-replace-home (pwd)
+    "Replace home in PWD with tilde (~) character."
+    (interactive)
+    (let* ((home (expand-file-name (getenv "HOME")))
+           (home-len (length home)))
+      (if (and
+           (>= (length pwd) home-len)
+           (equal home (substring pwd 0 home-len)))
+          (concat "~" (substring pwd home-len))
+        pwd)))
+
+  (defun pwd-shorten-dirs (pwd)
+    "Shorten all directory names in PWD except the last two."
+    (let ((p-lst (split-string pwd "/")))
+      (if (> (length p-lst) 2)
+          (concat
+           (mapconcat (lambda (elm) (if (zerop (length elm)) ""
+                                 (substring elm 0 1)))
+                      (butlast p-lst 2)
+                      "/")
+           "/"
+           (mapconcat (lambda (elm) elm)
+                      (last p-lst 2)
+                      "/"))
+        pwd)))  ;; Otherwise, we just return the PWD
+
+  ;; break up the directory into a 'parent' and a 'base'
+  (defun split-directory-prompt (directory)
+    (if (string-match-p ".*/.*" directory)
+        (list (file-name-directory directory) (file-name-base directory))
+      (list "" directory)))
+
+
+  ;; tie it all together
+  (defun eshell/eshell-local-prompt-function ()
+    "A prompt for eshell that works locally (in that is assumes
+  that it could run certain commands) in order to make a prettier,
+  more-helpful local prompt."
+    (interactive)
+    (let* ((pwd        (eshell/pwd))
+           (directory (split-directory-prompt
+                       (pwd-shorten-dirs
+                        (pwd-replace-home pwd))))
+           (parent (car directory))
+           (name   (cadr directory))
+           (branch (curr-dir-git-branch-string pwd))
+
+           (dark-env (eq 'dark (frame-parameter nil 'background-mode)))
+           (for-bars                 `(:weight normal))
+           (for-parent  (if dark-env `(:foreground "#5555ff") `(:foreground "blue")))
+           (for-dir     (if dark-env `(:foreground "#7288da" :weight bold)
+                          `(:foreground "blue" :weight bold)))
+           (for-git                  `(:foreground "#c687d6")))
+
+      (concat
+       (propertize ""   'face for-bars)
+       (propertize parent   'face for-parent)
+       (propertize name     'face for-dir)
+       (when branch
+         (concat (propertize " :: "    'face for-bars)
+                 (propertize branch   'face for-git)))
+       (propertize "\n"     'face for-bars)
+       (propertize (if (= (user-uid) 0) " #" " $") 'face `(:weight ultra-bold))
+       (propertize " "    'face `(:weight bold)))))
+
+  (setq-default eshell-prompt-function #'eshell/eshell-local-prompt-function)
+
+  ;; Turn off the default prompt, otherwise, it won't use ours:
+  (setq eshell-highlight-prompt nil)
+#+END_SRC
+
+*** Better command line history
+On [[https://www.reddit.com/r/emacs/comments/1zkj2d/advanced_usage_of_eshell/][this discussion]] a little gem for using IDO to search back through the history, instead of M-R to display
+the history in a selectable buffer.
+
+Also, while M-p cycles through the history, M-P actually moves up the history in the buffer (easier than C-c p
+and C-c n?):
+
+Since eshell’s history often gets confused with blank lines in the output, we can fix that with a better
+replacement functions pegged to the eshell-prompt-regexp string:
+
+#+BEGIN_SRC emacs-lisp
+  (defun eshell-next-prompt (n)
+    "Move to end of Nth next prompt in the buffer. See `eshell-prompt-regexp'."
+    (interactive "p")
+    (re-search-forward eshell-prompt-regexp nil t n)
+    (when eshell-highlight-prompt
+      (while (not (get-text-property (line-beginning-position) 'read-only) )
+        (re-search-forward eshell-prompt-regexp nil t n)))
+    (eshell-skip-prompt))
+
+  (defun eshell-previous-prompt (n)
+    "Move to end of Nth previous prompt in the buffer. See `eshell-prompt-regexp'."
+    (interactive "p")
+    (backward-char)
+    (eshell-next-prompt (- n)))
+
+  (defun eshell-insert-history ()
+    "Displays the eshell history to select and insert back into your eshell."
+    (interactive)
+    (insert (ido-completing-read "Eshell history: "
+                                 (delete-dups
+                                  (ring-elements eshell-history-ring)))))
+
+  (add-hook 'eshell-mode-hook (lambda ()
+      (define-key eshell-mode-map (kbd "M-S-P") 'eshell-previous-prompt)
+      (define-key eshell-mode-map (kbd "M-S-N") 'eshell-next-prompt)
+      (define-key eshell-mode-map (kbd "M-r") 'eshell-insert-history)))
+#+END_SRC
+
 * ORG
 [[https://github.com/howardabrams/dot-files/blob/master/emacs-org.org#journaling][continue..]]
 ** main settings
@@ -1047,55 +1251,6 @@ alternative - 'Ace-window'
   ;;   "Update GTAGS in PATH."
   ;;   (let ((bpr-process-directory path))
   ;;     (bpr-spawn "global -uv"))))
-#+END_SRC
-
-** Eshell
-#+BEGIN_SRC emacs-lisp
-  ;; (require 'f)
-  ;;
-  ;; (setq eshell-visual-commands
-  ;;       '("less" "tmux" "htop" "top" "bash" "zsh" "fish"))
-  ;;
-  ;; (setq eshell-visual-subcommands
-  ;;       '(("git" "log" "l" "diff" "show")))
-  ;;
-  ;; ;; Prompt with a bit of help from http://www.emacswiki.org/emacs/EshellPrompt
-  ;; (defmacro with-face (str &rest properties)
-  ;;   `(propertize ,str 'face (list ,@properties)))
-  ;;
-  ;; (defun eshell/abbr-pwd ()
-  ;;   (let ((home (getenv "HOME"))
-  ;;         (path (eshell/pwd)))
-  ;;     (cond
-  ;;      ((string-equal home path) "~")
-  ;;      ((f-ancestor-of? home path) (concat "~/" (f-relative path home)))
-  ;;      (path))))
-  ;;
-  ;; (defun eshell/my-prompt ()
-  ;;   (let ((header-bg "#161616"))
-  ;;     (concat
-  ;;      (with-face (eshell/abbr-pwd) :foreground "#008700")
-  ;;      (if (= (user-uid) 0)
-  ;; 	 (with-face "#" :foreground "red")
-  ;;        (with-face "$" :foreground "#2345ba"))
-  ;;      " ")))
-  ;;
-  ;; (setq eshell-prompt-function 'eshell/my-prompt)
-  ;; (setq eshell-highlight-prompt nil)
-  ;; (setq eshell-prompt-regexp "^[^#$\n]+[#$] ")
-  ;;
-  ;; (setq eshell-cmpl-cycle-completions nil)
-  ;;
-
-     ;; (setenv "PATH" (concat "/usr/local/bin:/opt/local/bin:/usr/bin:/bin" (getenv "PATH")))
-
-       ;; Terminal setup (stop prompt appearing each time when starting 'ansi-term')
-       ;; (defvar my-term-shell "/bin/bash")
-       ;; (defadvice ansi-term (before force-bash)
-       ;;   (interactive (list my-term-shell)))
-       ;; (ad-activate 'ansi-term)
-
-
 #+END_SRC
 
 
