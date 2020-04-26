@@ -925,10 +925,7 @@ todo: [[https://github.com/Alexander-Miller/treemacs#tag-view][ggtags integratio
               (lambda ()
                 (yas-minor-mode t)
                 (emmet-mode)
-                (prettier-js-mode)
-                ;; (flycheck-add-mode 'html-tidy 'web-mode)
-                (flycheck-add-mode 'web-mode)
-                (flycheck-mode)))
+                (prettier-js-mode)))
 
     (add-hook 'web-mode-before-auto-complete-hooks
               '(lambda ()
@@ -1102,7 +1099,6 @@ check also [[https://github.com/howardabrams/dot-files/blob/master/emacs.org#spe
 to use eslint install it: ~npm i -g eslint~
 
 #+BEGIN_SRC emacs-lisp
-  ;; 'npm install eslint' for flycheck to support syntax checking for jt
   (use-package flycheck
     :diminish flyspell-mode
     :init
@@ -1113,15 +1109,15 @@ to use eslint install it: ~npm i -g eslint~
     ;; (add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; for now stick to this variant
     (add-hook 'prog-mode-hook 'flycheck-mode)
 
-    ;; FIX
-    ;; (add-hook 'js2-mode-hook
-    ;;           (lambda () (flycheck-select-checker "javascript-eslint")))
     (evil-leader/set-key
       "fb" 'flycheck-buffer
       "fc" 'flycheck-clear
       "fn" 'flycheck-next-error
       "fp" 'flycheck-previous-error
       "fs" 'flycheck-list-errors)
+
+    :config
+    (flycheck-add-mode 'javascript-eslint 'js2-mode-hook)
     )
 #+END_SRC
 
