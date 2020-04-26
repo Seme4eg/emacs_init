@@ -36,9 +36,7 @@
  '(custom-safe-themes
    (quote
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
- '(org-agenda-files
-   (quote
-    ("~/git/elisp-tut/lesson_00.org" "~/Desktop/todo.org")))
+ '(org-agenda-files (quote ("~/.emacs.d/org/todo.org")))
  '(package-selected-packages
    (quote
     (wgrep-ag wgrep vue-mode evil-smartparens skewer-mode direx ggtags flx counsel wrap-region js2-mode company avy yasnippet-snippets yasnippet swiper popup-kill-ring dmenu diminish spaceline dashboard sudo-edit rainbow-delimiters switch-window evil-mc rainbow rainbow-mode spacemacs-theme org-bullets use-package evil-visual-mark-mode)))

@@ -585,7 +585,7 @@ Allows to extract and execute code.
 
 ** agenda/todo setup
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files (quote ("~/Desktop/todo.org"))) ;; dunno if it's gonna work
+  (setq org-agenda-files (quote ("~/.emacs.d/org/todo.org"))) ;; dunno if it's gonna work
 
   ;; keybindings
   (evil-leader/set-key
@@ -606,7 +606,7 @@ Allows to extract and execute code.
   (setq org-agenda-window-setup (quote current-window))
 
   (setq org-capture-templates
-        '(("t" "todo" entry (file+headline "~/Desktop/todo.org" "Tasks")
+        '(("t" "todo" entry (file+headline "~/.emacs.d/org/todo.org" "Tasks")
            "* TODO [#A] %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")))
 
   ;; org-mode agenda options
