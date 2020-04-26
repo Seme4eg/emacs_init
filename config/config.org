@@ -309,7 +309,9 @@ requires ~all-the-icons~ fonts to be installed: ~M-x all-the-icons-install-fonts
   ;; ---
 
   (require 'dired-x)
-  (setq dired-omit-files "^\\.?#\\|^\\.[^.].*")
+  ;; (setq dired-omit-files "^\\.?#\\|^\\.[^.].*")
+  ;; (add-hook 'dired-mode-hook (lambda ()
+  ;;                              (dired-omit-mode t)))
 
   (defun air-dired-buffer-dir-or-home ()
     "Open dired to the current buffer's dir, or $HOME."
@@ -317,9 +319,6 @@ requires ~all-the-icons~ fonts to be installed: ~M-x all-the-icons-install-fonts
     (let ((cwd (or (file-name-directory (or (buffer-file-name) ""))
                    (expand-file-name "~"))))
       (dired cwd)))
-
-  (add-hook 'dired-mode-hook (lambda ()
-                               (dired-omit-mode t)))
 
   (eval-after-load 'wdired
     (add-hook 'wdired-mode-hook 'evil-normal-state))
@@ -896,7 +895,6 @@ todo: [[https://github.com/Alexander-Miller/treemacs#tag-view][ggtags integratio
 ** Web-mode | [[web-mode.org][documentation]]
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
-    :defer t
     :config
     (setq web-mode-style-padding 2
           web-mode-script-padding 2
@@ -913,6 +911,7 @@ todo: [[https://github.com/Alexander-Miller/treemacs#tag-view][ggtags integratio
 
     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.css?\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.js$" . web-mode))
 
@@ -923,19 +922,21 @@ todo: [[https://github.com/Alexander-Miller/treemacs#tag-view][ggtags integratio
 
     (add-hook 'web-mode-hook
               (lambda ()
-                (yas-minor-mode t)
+                ;; (js2-refactor-mode) ;; no Javascript AST available in web-mode
+                (yas-activate-extra-mode 'js2-mode)
                 (emmet-mode)
                 (prettier-js-mode)))
 
     (add-hook 'web-mode-before-auto-complete-hooks
-              '(lambda ()
+              (lambda ()
                  (let ((web-mode-cur-language (web-mode-language-at-pos)))
                    (if (string= web-mode-cur-language "php")
                        (yas-activate-extra-mode 'php-mode)
                      (yas-deactivate-extra-mode 'php-mode))
-                   (if (string= web-mode-cur-language "css")
-                       (setq emmet-use-css-transform t)
-                     (setq emmet-use-css-transform nil)))))
+                   ;; (if (string= web-mode-cur-language "css")
+                   ;;     (setq emmet-use-css-transform t)
+                   ;; (setq emmet-use-css-transform nil))
+                   )))
     )
 #+END_SRC
 
