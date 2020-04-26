@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: doctype
+# key: !
+# --
+# -*- mode: snippet -*-
+# name: ${1:name}
+# key: ${2:key}
+# --
+${0:# snippet...}

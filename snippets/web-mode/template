@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: template
+# key: !
+# --
+<template>
+  <$1>
+    $2
+  </$1>
+</template>
+
+${3:script}$0

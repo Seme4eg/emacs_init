@@ -917,8 +917,7 @@ todo: [[https://github.com/Alexander-Miller/treemacs#tag-view][ggtags integratio
 
     ;; set up per-language ac-sources FIX
     ;;  (setq web-mode-ac-sources-alist
-    ;;	'(("php" . (ac-source-php-extras ac-source-yasnippet ac-source-php-auto-yasnippets))
-    ;;	  ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
+    ;;	'(("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
 
     (add-hook 'web-mode-hook
               (lambda ()
