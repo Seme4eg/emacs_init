@@ -766,20 +766,20 @@ from [[https://github.com/Seme4eg/emacs_init/commit/2620f1a411c159cd6c7a7fac84a6
   ;; (evil-leader/set-key "cs" 'window-configuration-to-register)
   ;; (evil-leader/set-key "cr" 'jump-to-register)
 
-  (use-package perspective
-    :demand t
-    :init
-    (define-key evil-normal-state-map (kbd ",z") 'perspective-map)
-    (persp-mode 1)
-    (use-package persp-projectile
-      :init (define-key evil-normal-state-map (kbd ",zP") 'projectile-persp-switch-project))
-    :config
-    (setq persp-state-default-file "~/.emacs.d/perspectives")
-    (add-hook 'kill-emacs-hook #'persp-state-save)
-    (define-key perspective-map (kbd "l") 'persp-state-load)
-    (define-key perspective-map (kbd "x") 'persp-switch-last)
-    (define-key evil-normal-state-map (kbd "gt") 'persp-next)
-    (define-key evil-normal-state-map (kbd "gT") 'persp-prev))
+  ;; (use-package perspective
+  ;;   :demand t
+  ;;   :init
+  ;;   (define-key evil-normal-state-map (kbd ",z") 'perspective-map)
+  ;;   (persp-mode)
+  ;;   (use-package persp-projectile
+  ;;     :init (define-key evil-normal-state-map (kbd ",zP") 'projectile-persp-switch-project))
+  ;;   :config
+  ;;   (setq persp-state-default-file "~/.emacs.d/perspectives")
+  ;;   (add-hook 'kill-emacs-hook 'persp-state-save)
+  ;;   (define-key perspective-map (kbd "l") 'persp-state-load)
+  ;;   (define-key perspective-map (kbd "x") 'persp-switch-last)
+  ;;   (define-key evil-normal-state-map (kbd "gt") 'persp-next)
+  ;;   (define-key evil-normal-state-map (kbd "gT") 'persp-prev))
 #+END_SRC
 
 * Silversearch front
@@ -1003,44 +1003,17 @@ to install packages globally withoug /EACCESS/ error go [[https://docs.npmjs.com
 #+END_SRC
 
 *** js-prettier
+In order for this package to work install 'prettier' globally: ~npm i -g prettier~
+
 #+BEGIN_SRC emacs-lisp
   (use-package prettier-js
     :init
     (add-hook 'js2-mode-hook 'prettier-js-mode)
-    (add-hook 'vue-mode-hook 'prettier-js-mode)
     (setq prettier-js-args '(
                              "--trailing-comma" "es5"
                              "--single-quote" "true"
                              "--arrow-parens" "avoid"
                              )))
-#+END_SRC
-
-** Vue-mode
-#+BEGIN_SRC emacs-lisp
-  (use-package vue-mode
-    :config
-    ;; (add-hook 'prog-mode-hook 'fringe-mode '(8 . 0)) ;; dunno if that'll work
-    ;; (add-hook 'prog-mode-hook #'yas-minor-mode))
-    (add-hook 'vue-mode-hook
-              (lambda ()
-                (yas-minor-mode t)
-
-                (linum-mode)
-                (hs-minor-mode)
-                (rainbow-mode)
-                (rainbow-delimiters-mode)
-                (color-identifiers-mode)
-                (smartparens-mode)
-                ;; (add-hook 'js2-mode-hook #'js2-refactor-mode)
-                (js2-refactor-mode)
-
-                (emmet-mode)
-                ;; (flycheck-add-mode 'html-tidy 'web-mode)
-                ;; (flycheck-add-mode 'vue-mode)
-                ;; (flycheck-prog-mode)
-                (tern-mode t)))
-
-    (add-to-list 'auto-mode-alist '("\\.vue$" . vue-mode)))
 #+END_SRC
 
 ** Pug-mode
