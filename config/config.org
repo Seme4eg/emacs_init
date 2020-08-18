@@ -986,10 +986,7 @@ to install packages globally withoug /EACCESS/ error go [[https://docs.npmjs.com
        "th" 'tern-highlight-refs
        "tf" 'tern-find-definition
        "tn" 'tern-find-definition-by-name
-       "tp" 'tern-pop-find-definition)
-     :config
-       (use-package company-tern
-          :init (add-to-list 'company-backends 'company-tern)))
+       "tp" 'tern-pop-find-definition))
 #+END_SRC
 
 *** js2-refactor | [[https://github.com/magnars/js2-refactor.el][github (shortcuts)]]
@@ -1006,14 +1003,24 @@ to install packages globally withoug /EACCESS/ error go [[https://docs.npmjs.com
 In order for this package to work install 'prettier' globally: ~npm i -g prettier~
 
 #+BEGIN_SRC emacs-lisp
+  ;; (use-package add-node-modules-path
+  ;;   :init
+  ;;   (add-hook 'js-mode-hook #'add-node-modules-path))
+
   (use-package prettier-js
     :init
     (add-hook 'js2-mode-hook 'prettier-js-mode)
     (setq prettier-js-args '(
-                             "--trailing-comma" "es5"
+                             "--trailing-comma" "all"
                              "--single-quote" "true"
                              "--arrow-parens" "avoid"
+                             "--space-before-function-paren" "true"
                              )))
+
+  ;; (eval-after-load 'web-mode
+  ;;     '(progn
+  ;;        (add-hook 'web-mode-hook #'add-node-modules-path)
+  ;;        (add-hook 'web-mode-hook #'prettier-js-mode)))
 #+END_SRC
 
 ** Pug-mode

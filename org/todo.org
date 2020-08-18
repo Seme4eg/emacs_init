@@ -1,6 +1,4 @@
 * Tasks
-** TODO integrate company and web-mode
-SCHEDULED: <2020-04-26 Sun>
 ** TODO install [[https://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html][xref-js2]]
 SCHEDULED: <2020-04-26 Sun>
 ** TODO <leader> stops working in file, where i pressed reload config
